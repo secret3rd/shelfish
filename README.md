@@ -1,8 +1,8 @@
 # Shelfish
 
-Shelfish is a bear blog plugin that auto-fetches thumbnails for books, movies, TV shows, and music albums. Think of it like the book shelf vinyl record display case in your home.
+Shelfish is a bear blog plugin that auto-fetches thumbnails for books, movies, TV shows, and music albums. 
 
-This plugin is easy to embed, and I suggest you directly embed both the CSS file and JS file under a `<head>` directive under the `/now/` page (or whichever page you intend to use this in) 
+Think of it like the book shelf vinyl record display case in your home.
 
 ---
 
@@ -11,19 +11,17 @@ This plugin is easy to embed, and I suggest you directly embed both the CSS file
 You type something like this into your page editor:
 
 ```markdown
-#### Now playing
 - 🔢
 - [Music] Random Access Memories | Daft Punk | # | https://www.youtube.com/watch?v=5NV6Rdv1a3I | Best song of 2013!
 - [Music] This Music May Contain Hope | RAYE | | /this-doodle-may-contain-hope/ | Inspired by RAYE
 - [Music] The Mountain | Gorillaz | | /the-mountain-review/ | More thoughts here
 ```
 
-and it turns into something like this.
+And watch it turn into something like this:
 
 ![Output](https://bear-images.sfo2.cdn.digitaloceanspaces.com/afewgoodpens/19am.webp)
 
-In short: any list that starts with the `🔢` emoji triggers our script, and transforms the simple markdown list into a responsive, visual bookshelf-like layout. It can fet
-
+Any list that starts with the `🔢` emoji triggers the script, and transforms a simple list into a responsive, visual bookshelf.
 
 ---
 
@@ -34,19 +32,19 @@ In short: any list that starts with the `🔢` emoji triggers our script, and tr
 - **Trusted Sources**: Books and music art are fetched from the iTunes library. Movies and TV shows pull from The Movie DB.
 
 ### Bells and Whistles
-- **Custom Thumbnails**: You can upload your own thumbnail or cover URL in case it's not a popular piece of media or it's simply unavailable in the databases.
-- **Accessibility**: Alt text for images is generated on the basis of your input.
-- **Flexible Links**: You can link to reviews, a single from the album, a download link, whatever you think adds to it. You can also leave this empty.
-
+- **Custom Thumbnails**: You can upload your own thumbnail or cover URL in case it's not a popular piece of media or it's simply unavailable in the databases we're fetching from.
+- **Accessibility**: Alt text for images is generated on the basis of text input.
+- **Flexible Links**: You can link to reviews, the album's lead single, a download link, anything that adds a layer. You can also leave this empty.
+  
 ---
 
 ## Implementation
 
-I suggest embedding both the stylesheet and JS within the page where you want the shelves. My guess is this is not the most lightweight code and it's more of a novelty. You don't want the rest of your lightweight bear blog's speed to be affected by it. 
+I suggest embedding both the stylesheet and JS within the page where you want the shelves. My guess is this is not the most lightweight code and it's more of a novelty. You wouldn't want the rest of your lightweight blog's speed to be affected by it. 
 
 ### Deployment Code
 
-Paste this at the top of your page:
+Paste this at the top of your `/now/` page:
 
 ```html
 <head>
@@ -57,6 +55,10 @@ Paste this at the top of your page:
 
 <script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js"></script>
 </head>
+
+Some body content
+
+Followed by the markdown lists which will be translated on load
 ```
 
 ---
@@ -64,8 +66,6 @@ Paste this at the top of your page:
 ## The Syntax Guide
 
 Every list must strictly adhere to this format. Type `#` in case you wish to leave a field empty. 
-
-The first two fields, however, are mandatory. If you leave them empty or type `#` in their place, the full entry will be ignored. Similarly, if you enter the wrong number of fields, your entry will be ignored and most likely, the whole shelf display will break.
 
 `- [Type] Title | Creator | Image | Link | Label`
 
@@ -76,18 +76,22 @@ The first two fields, however, are mandatory. If you leave them empty or type `#
 - **❌ Wrong**: `- [Book] A Hobbit's Tale | JRR Tolkien | /fan-art-page/ | My fan art` (If you want a custom label, you MUST provide all parameters).
 - **✅ Correct**: `- [Book] A Hobbit's Tale | JRR Tolkien | # | /fan-art-page/ | My fan art` (adding five parameters with one empty `#` in place of a custom thumbnail, meets the required syntax).
 
+Essentially, the first two fields are mandatory. If you leave them empty or type `#` in their place, the full entry will be ignored. Similarly, if you enter the wrong number of fields, your entry will be ignored. 
+
+Chances are you will do one minor error and the whole shelf will break like my attempts at IKEA DIY furniture. 
+But the relatively simple format makes it easy to debug and fix.
 
 ---
 
 ## Disclaimers
 
-- Even small typos in titles and creator names can render your search pointless.
+- Typos in titles and creator names can render your search pointless.
 - Shoutout to **Ben Dodson's** [iTunes library](https://github.com/bendodson/itunes-artwork-finder) project for making me realize this was possible.
-- The **TMDB API** this script uses is a personal one, please don't ping it every other minute and get me suspended. It should be okay for a few of you to use this for non-commercial purposes. If there's significant interest, I might consider buying a business license.
+- The script uses my personal **TMDB** API key, please refrain from pinging every other minute and getting me suspended. If there's significant interest, I might consider buying a business license.
 - Far be it from me to thank a trillion-dollar company, but the **iTunes library** is also quite central to this project.
-- It would also be nice to have a **Steam** thumbnail fetcher, too. I am not a big gamer so I didn't bother with it.
-- The first paint is quite slow and I would like some improvements there. But it works fine enough for now.
-- While I know how to code, I used the help of **Google Antigravity** quite generously. I would love for an indie dev to fork this and rewrite it without the use of AI. I do feel it's quite bloated.
+- It would also be nice to implement a **Steam** thumbnail fetcher. I am not a big gamer so I didn't bother about it.
+- The first paint of the shelves is quite slow, and I would like to make some improvements there. But it works fine enough for now.
+- While I do know how to code, I'm quite rusty and used the help of **Google Antigravity** generously. I would love for an indie dev to fork this and remix it without the use of AI. I do feel it's bloated.
 
 ---
 
