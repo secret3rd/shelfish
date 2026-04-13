@@ -1,8 +1,6 @@
 # Shelfish
 
-Shelfish is a bear blog plugin that auto-fetches thumbnails for books, movies, TV shows, and music albums. Think of it as a book shelf or a display case for your vinyl records.
-
-It's not the most valuable thing at your home, not by any stretch, but it's one of the first places where people's eyes gravitate. 
+Shelfish is a bear blog plugin that auto-fetches thumbnails for books, movies, TV shows, and music albums. Think of it like the book shelf vinyl record display case in your home.
 
 This plugin is easy to embed, and I suggest you directly embed both the CSS file and JS file under a `<head>` directive under the `/now/` page (or whichever page you intend to use this in) 
 
@@ -14,19 +12,17 @@ You type something like this into your page editor:
 
 ```markdown
 #### Now playing
-
 - 🔢
-- [Music] Random Access Memories | Daft Punk | # | https://google.com | Search Engine
-- [Music] This Music May Contain Hope | RAYE | # | #
-- [Music] The Mountain | Gorillaz | # | #
-- [Music] e.t.d.s. A Mixtape by .idk. | IDK | # | #
+- [Music] Random Access Memories | Daft Punk | # | https://www.youtube.com/watch?v=5NV6Rdv1a3I | Best song of 2013!
+- [Music] This Music May Contain Hope | RAYE | | /this-doodle-may-contain-hope/ | Inspired by RAYE
+- [Music] The Mountain | Gorillaz | | /the-mountain-review/ | More thoughts here
 ```
 
 and it turns into something like this.
 
-[Output](https://bear-images.sfo2.cdn.digitaloceanspaces.com/afewgoodpens/19am.webp)
+![Output](https://bear-images.sfo2.cdn.digitaloceanspaces.com/afewgoodpens/19am.webp)
 
-Any list that starts with the `🔢` emoji triggers our script, and transforms a simple markdown list into a responsive, visual bookshelf.
+In short: any list that starts with the `🔢` emoji triggers our script, and transforms the simple markdown list into a responsive, visual bookshelf-like layout. It can fet
 
 
 ---
@@ -46,31 +42,35 @@ Any list that starts with the `🔢` emoji triggers our script, and transforms a
 
 ## Implementation
 
-I suggest embedding both the stylesheet and JS within the page where you want the shelves. My guess is this is not the best written lightweight code and it's really more of a novelty. You don't want the rest of your lightweight blog's speed to be affected by it. 
+I suggest embedding both the stylesheet and JS within the page where you want the shelves. My guess is this is not the most lightweight code and it's more of a novelty. You don't want the rest of your lightweight bear blog's speed to be affected by it. 
 
 ### Deployment Code
 
 Paste this at the top of your page:
 
 ```html
+<head>
 <style>
 /* Paste full source from shelfish.css here if you want total independence */
 @import url('https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.css');
 </style>
 
 <script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js"></script>
+</head>
 ```
 
 ---
 
 ## The Syntax Guide
 
-Every list must adhere to the 5-part pipe structure.
+Every list must adhere to this format. Type `#` in case you wish to leave a field empty. 
+
+However, the first two fields are mandatory. If you leave them empty or type `#` in its place, the full entry will be ignored. Similarly, if you enter 
 
 `- [Type] Title | Creator | Image | Link | Label`
 
 ### Right vs. Wrong
-- **✅ Correct**: `- [Movie] Dune | Denis Villeneuve | # | #`
+- **✅ Correct**: `- [Movie] Dune | Denis Villeneuve | # | # | #`
 - **❌ Wrong**: `- [Movie] Dune | Denis Villeneuve | #` (Missing pipes will cause the line to be ignored).
 - **❌ Wrong**: `- [Book] Title | Creator | image.jpg | target.html` (If you want a custom label, you MUST provide all 5 slots).
 
@@ -84,6 +84,7 @@ If the input is wrong, the engine will silently skip that entry to keep your gri
 - The **TMDB API** this script uses is a personal one. It should be okay for a few of you to use; if there's significant interest, I might have to take a business license and request donations, or close the project.
 - Far be it from me to thank a trillion-dollar company, but the **iTunes library** is central to this project.
 - It would also be nice to have video games be logged, maybe there's a **Steam** thumbnail fetcher. I am not a very big gamer except for Apple Arcade on my iPad, so I didn't bother.
+- Even small typos in album / movie / book / TV show names render the search pointless and you'll be left with a lousy placeholder images.
 - While I know how to code, I used the help of **Google Antigravity** quite generously. I would love for an indie dev to fork this and rewrite it without the use of AI. I do feel it's quite bloated.
 
 ---
@@ -276,4 +277,4 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
 ---
 
-Contact me by writing to me at **hello [at] murugappan.com**
+If you have any feedback or thoughts, you can contact me by writing to me at **hello [at] murugappan.com**
