@@ -4,7 +4,7 @@ Shelfish is a bear blog plugin that auto-fetches thumbnails for books, movies, T
 
 It's not the most valuable thing at your home, not by any stretch, but it's one of the first places where people's eyes gravitate. 
 
-This plugin is easy to embed, and I suggest you directly embed both the CSS file and JS file under a `<head>` directive in your `/now/ page` or whichever page you intend to show this in. 
+This plugin is easy to embed, and I suggest you directly embed both the CSS file and JS file under a `<head>` directive under the `/now/` page (or whichever page you intend to use this in) 
 
 ---
 
