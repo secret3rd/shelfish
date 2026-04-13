@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelf-ish | Bear Blog Demo</title>
+    <!-- Shelf-ish Styles -->
+    <link rel="stylesheet" href="shelf.css">
+    
+    <!-- Mimic Bear Blog Base Theme -->
+    <style>
+        :root {
+            --width: 720px;
+            --background-color: #e4efe4;
+            --heading-color: #557968;
+            --text-color: #232a32;
+            --link-color: #557968;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: auto;
+            padding: 40px 20px;
+            max-width: var(--width);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 { color: var(--heading-color); margin-top: 2rem; }
+        
+        a { color: var(--link-color); font-weight: bold; }
+        
+        .superbutton-link {
+            text-decoration: underline var(--link-color) 0.15rem;
+        }
+        
+        .superbutton-rounded {
+            border: 0.1em solid var(--link-color);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Now</h2>
+
+    <p>Some of us have online empires to build and can ill afford to engage in frivolous small talk. So when someone we know asks us "what's up," we simply send them a link to our <strong>now</strong> pages.</p>
+
+    <p>These pages often feature what we're currently watching, reading, or listening to.</p>
+
+    <p><em>(On a serious note: if you have a personal website, you should <a href="https://nownownow.com">make one</a> too.) It's an underrated way to reflect on your priorities.</em></p>
+
+    <h3>As creator</h3>
+    <ul>
+        <li>I'm planning to get at least one article placed in a humour market by the end of April.</li>
+        <li>I'm working on the second draft of a children's book that I'm co-writing with <a href="https://www.instagram.com/lakdoesthings/">Lakshmi Nagaraj</a>, my partner.</li>
+        <li>I'm really enjoying playing with my <a href="https://bearblog.dev">bear blog</a>.</li>
+        <li>I made Shelf-ish, a bear blog plugin that takes markdown lists and turns them into cool digital shelves that vinyl lovers, bookworms, or really, any cultured person would enjoy. <a href="/get-shelfish/">Install it on your blog.</a> But first, see a live demo below.</li>
+    </ul>
+
+    <h3>As consumer</h3>
+
+    <h4>Reading</h4>
+    <ul>
+        <li>🔢</li>
+        <li>[Book] How to Sharpen Pencils | David Rees | # | #</li>
+        <li>[Book] Me Talk Pretty One Day | David Sedaris | https://annas-archive.gd/md5/fee89ccf14db2280a64fac5553dadadc | Get EPUB</li>
+        <li>[Book] The Strange and Beautiful Sorrows of Ava Lavender | Leslye Walton | # | https://www.goodreads.com/review/show/2106259779 | #</li>
+    </ul>
+
+    <h4>Now watching</h4>
+    <ul>
+        <li>🔢</li>
+        <li>[TV] Superstore | Justin Spritz | https://bear-images.sfo2.cdn.digitaloceanspaces.com/afewgoodpens/denees.webp | #</li>
+        <li>[Movie] Dr. Strangelove | Stanley Kubrick | # | #</li>
+        <li>[TV] Shrinking | Jason Segel | # | #</li>
+        <li>[TV] Ghosts (US) | Joe Port | # | #</li>
+    </ul>
+
+    <h4>Now playing</h4>
+    <ul>
+        <li>🔢</li>
+        <li>[Music] Random Access Memories | Daft Punk | # | https://google.com | Search Engine</li>
+        <li>[Music] This Music May Contain Hope | RAYE | # | #</li>
+        <li>[Music] The Mountain | Gorillaz | # | #</li>
+        <li>[Music] e.t.d.s. A Mixtape by .idk. | IDK | # | #</li>
+        <li>[Music] Sewing Kit | Roland Faunte | # | #</li>
+    </ul>
+
+    <hr>
+
+    <!-- Shelf-ish core engine -->
+    <script src="shelf.js"></script>
+
+</body>
+</html>
