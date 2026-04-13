@@ -10,16 +10,24 @@ This plugin is easy to embed, and I suggest you directly embed both the CSS file
 
 ## How it works
 
-You type this into your editor:
+You type something like this into your page editor:
 
 ```markdown
-#### Reading
+#### Now playing
+
 - 🔢
-- [Book] How to Sharpen Pencils | David Rees | # | #
-- [Book] Me Talk Pretty One Day | David Sedaris | # | https://annas-archive.gd/md5/fee89ccf14db2280a64fac5553dadadc | Get EPUB 
+- [Music] Random Access Memories | Daft Punk | # | https://google.com | Search Engine
+- [Music] This Music May Contain Hope | RAYE | # | #
+- [Music] The Mountain | Gorillaz | # | #
+- [Music] e.t.d.s. A Mixtape by .idk. | IDK | # | #
 ```
 
-And the engine transforms it into a responsive, visual gallery automatically.
+and it turns into something like this.
+
+[Output](https://bear-images.sfo2.cdn.digitaloceanspaces.com/afewgoodpens/19am.webp)
+
+Any list that starts with the `🔢` emoji triggers our script, and transforms a simple markdown list into a responsive, visual bookshelf.
+
 
 ---
 
