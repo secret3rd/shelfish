@@ -63,35 +63,37 @@ Paste this at the top of your page:
 
 ## The Syntax Guide
 
-Every list must adhere to this format. Type `#` in case you wish to leave a field empty. 
+Every list must strictly adhere to this format. Type `#` in case you wish to leave a field empty. 
 
-However, the first two fields are mandatory. If you leave them empty or type `#` in its place, the full entry will be ignored. Similarly, if you enter 
+The first two fields, however, are mandatory. If you leave them empty or type `#` in their place, the full entry will be ignored. Similarly, if you enter the wrong number of fields, your entry will be ignored and most likely, the whole shelf display will break.
 
 `- [Type] Title | Creator | Image | Link | Label`
 
 ### Right vs. Wrong
 - **✅ Correct**: `- [Movie] Dune | Denis Villeneuve | # | # | #`
+- **✅ Correct**: `- [Movie] Oppenheimer | Christopher Nolan | /custom-thumbnail-url.png | /my-review/ | My 5 star review!`
 - **❌ Wrong**: `- [Movie] Dune | Denis Villeneuve | #` (Missing pipes will cause the line to be ignored).
-- **❌ Wrong**: `- [Book] Title | Creator | image.jpg | target.html` (If you want a custom label, you MUST provide all 5 slots).
+- **❌ Wrong**: `- [Book] A Hobbit's Tale | JRR Tolkien | /fan-art-page/ | My fan art` (If you want a custom label, you MUST provide all parameters).
+- **✅ Correct**: `- [Book] A Hobbit's Tale | JRR Tolkien | # | /fan-art-page/ | My fan art` (adding five parameters with one empty `#` in place of a custom thumbnail, meets the required syntax).
 
-If the input is wrong, the engine will silently skip that entry to keep your grid looking clean rather than rendering a broken card.
 
 ---
 
 ## Disclaimers
 
-- Big shoutout to **Ben Dodson's** iTunes library project for making me realize this was possible.
-- The **TMDB API** this script uses is a personal one. It should be okay for a few of you to use; if there's significant interest, I might have to take a business license and request donations, or close the project.
-- Far be it from me to thank a trillion-dollar company, but the **iTunes library** is central to this project.
-- It would also be nice to have video games be logged, maybe there's a **Steam** thumbnail fetcher. I am not a very big gamer except for Apple Arcade on my iPad, so I didn't bother.
-- Even small typos in album / movie / book / TV show names render the search pointless and you'll be left with a lousy placeholder images.
+- Even small typos in titles and creator names can render your search pointless.
+- Shoutout to **Ben Dodson's** [iTunes library](https://github.com/bendodson/itunes-artwork-finder) project for making me realize this was possible.
+- The **TMDB API** this script uses is a personal one, please don't ping it every other minute and get me suspended. It should be okay for a few of you to use this for non-commercial purposes. If there's significant interest, I might consider buying a business license.
+- Far be it from me to thank a trillion-dollar company, but the **iTunes library** is also quite central to this project.
+- It would also be nice to have a **Steam** thumbnail fetcher, too. I am not a big gamer so I didn't bother with it.
+- The first paint is quite slow and I would like some improvements there. But it works fine enough for now.
 - While I know how to code, I used the help of **Google Antigravity** quite generously. I would love for an indie dev to fork this and rewrite it without the use of AI. I do feel it's quite bloated.
 
 ---
 
 ## Source Code
 
-You are free to pick these apart and host them yourself for maximum performance.
+You are free to pick these apart and host them yourself for maximum performance. I am happy to redirect people using this plugin to a more elegant fork when it comes up.
 
 <details>
 <summary>View shelfish.js Source</summary>
