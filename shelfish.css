@@ -5,7 +5,7 @@
     clear: both !important;
     font-family: inherit !important;
     /* Minimal theme derivation variables */
-    --shelfish-accent: var(--link-color, var(--primary-color, var(--accent-color, currentColor)));
+    --shelfish-accent: var(--link-color, var(--primary-color, var(--accent-color, var(--text-color, currentColor))));
     --shelfish-card-bg: var(--shelfish-accent);
     --shelfish-card-text: var(--background-color, #fff);
     --shelfish-border: rgba(255, 255, 255, 0.1);
@@ -26,7 +26,7 @@
 /* Review button — ghost variant holds row height when no link is present. */
 .shelfish-btn-wrapper { display: flex !important; justify-content: center !important; width: 100% !important; align-self: center !important; margin: 0 !important; }
 .shelfish-btn { width: 100% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.4rem !important; padding: 0.6em 1em !important; box-sizing: border-box !important; border: 1.5px dotted var(--shelfish-accent) !important; background-color: transparent !important; color: var(--shelfish-accent) !important; border-radius: 6px !important; text-decoration: none !important; font-size: 0.85rem !important; font-weight: 600 !important; transition: all 0.2s ease !important; }
-.shelfish-btn:hover { background-color: var(--shelfish-accent) !important; color: var(--shelfish-card-text) !important; text-decoration: none !important; }
+.shelfish-btn:hover { background-color: transparent !important; border-style: solid !important; text-decoration: underline !important; color: var(--shelfish-accent) !important; }
 .shelfish-btn.shelfish-hidden { visibility: hidden !important; pointer-events: none !important; opacity: 0 !important; background: transparent !important; border-color: transparent !important; color: transparent !important; }
 .shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block !important; }
 .shelfish-btn:hover .shelfish-arrow { transform: translateX(4px) !important; }
