@@ -55,10 +55,10 @@ class Shelfish {
     }
 
     validURL(val) {
-        /* Only '#', 'http(s)://...', or '/relative/' paths are accepted. Anything else drops the entry. */
-        if (val === '#') return true;
+        /* Accept '#', '#' with params, 'http', or '/' paths. */
+        if (val.startsWith('#')) return true;
         if (val.startsWith('http')) return true;
-        if (val.startsWith('/') && val.endsWith('/')) return true;
+        if (val.startsWith('/')) return true;
         return false;
     }
 
@@ -68,8 +68,37 @@ class Shelfish {
 
         const [tpTit, cr] = parts;
         const im = parts[2] || '#';
-        const lk = parts[3] || '#';
+        let lk = parts[3] || '#';
         const label = (parts[4] && parts[4] !== '#') ? parts[4] : 'Read review';
+
+        let customBg = null;
+        if (lk !== '#') {
+            try {
+                let urlObj;
+                if (lk.startsWith('http')) {
+                    urlObj = new URL(lk);
+                } else if (lk.startsWith('/')) {
+                    urlObj = new URL(lk, window.location.origin);
+                } else if (lk.startsWith('#') && lk.length > 1) {
+                    /* Convert hash params like #bg=red to dummy query params for easy parsing */
+                    urlObj = new URL(`http://dummy${lk.replace('#', '?')}`);
+                }
+
+                if (urlObj && urlObj.searchParams.has('bg')) {
+                    customBg = urlObj.searchParams.get('bg');
+                    urlObj.searchParams.delete('bg');
+                    
+                    if (lk.startsWith('http')) {
+                        lk = urlObj.href;
+                    } else if (lk.startsWith('/')) {
+                        lk = urlObj.pathname + urlObj.search + urlObj.hash;
+                    } else if (lk.startsWith('#')) {
+                        const search = urlObj.search.replace('?', '#');
+                        lk = search || '#';
+                    }
+                }
+            } catch (e) {}
+        }
 
         const tag = tpTit.match(/\[(.*?)\]/i);
         if (!tag || !cr || cr === '#') return null;
@@ -85,7 +114,8 @@ class Shelfish {
             author: cr,
             img: im !== '#' ? im : null,
             link: lk !== '#' ? lk : null,
-            label
+            label,
+            customBg
         };
     }
 
@@ -95,7 +125,8 @@ class Shelfish {
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : `<div class="shelfish-btn-wrapper"><div class="superbutton-link superbutton-rounded shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
+        const styleTag = i.customBg ? ` style="--shelfish-card-bg: ${i.customBg}; background: var(--shelfish-card-bg) !important;"` : '';
+        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"${styleTag}><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
     }
 
     async loadArt(card) {
