@@ -6,8 +6,8 @@
     font-family: inherit !important;
     /* Minimal theme derivation variables */
     --shelfish-accent: var(--link-color, var(--primary-color, var(--accent-color, var(--text-color, currentColor))));
-    --shelfish-card-bg: var(--shelfish-accent);
-    --shelfish-card-text: var(--background-color, #fff);
+    --shelfish-card-bg: var(--text-color, CanvasText);
+    --shelfish-card-text: var(--background-color, Canvas);
     --shelfish-border: rgba(255, 255, 255, 0.1);
 }
 .shelfish-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important; gap: 3rem 1.5rem !important; align-items: stretch !important; margin-bottom: 2rem !important; }
