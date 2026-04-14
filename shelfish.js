@@ -1,163 +1,131 @@
-/**
- * Auto-fetch book/album covers and movie/tv posters for your /now page on bear blog.
- */
+/* auto-fetch artwork for books, movies, tv, and music on bear blog /now pages */
 class Shelfish {
     constructor(config = {}) {
         this.key = config.tmdbKey || '8942f1dc81e199d343c97639c0bbca67';
-        this.icons = {
-            'Book': `<svg viewBox="0 0 24 24"><path d="M19 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h1V2h-1V4z"/></svg>`,
-            'Movie': `<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>`,
-            'TV': `<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>`,
-            'Music': `<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-4z"/></svg>`
-        };
-        this.setupLazyLoader();
-        this.scan();
-        new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
-    }
 
-    setupLazyLoader() {
-        this.shelfish_lazy = new IntersectionObserver(es => es.forEach(e => {
-            if (e.isIntersecting) { this.loadArt(e.target); this.shelfish_lazy.unobserve(e.target); }
+        // read optional ?bg= param from the script tag itself
+        const src = document.currentScript?.src;
+        if (src?.includes('?')) {
+            try { this.globalBg = new URL(src).searchParams.get('bg'); } catch (_) {}
+        }
+
+        this.icons = {
+            Book:  `<svg viewBox="0 0 24 24"><path d="M19 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h1V2h-1V4z"/></svg>`,
+            Movie: `<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>`,
+            TV:    `<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>`,
+            Music: `<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-4z"/></svg>`,
+        };
+
+        this.observer = new IntersectionObserver(entries => entries.forEach(e => {
+            if (e.isIntersecting) { this.loadArt(e.target); this.observer.unobserve(e.target); }
         }), { rootMargin: '300px' });
+
+        // re-scan whenever bear blog dynamically injects content
+        new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
+        this.scan();
     }
 
     scan() {
-        /* Scans for the trigger emoji anywhere in the first item's content to ensure detection regardless of formatting. */
-        document.querySelectorAll('ul:not([data-shelfish-loaded])').forEach(ul => {
-            const li = ul.querySelector('li');
-            if (li && (li.innerHTML.includes('🔢') || li.innerText.includes('🔢'))) {
-                this.transform(ul, Array.from(ul.querySelectorAll('li')));
-            }
+        document.querySelectorAll('ul:not([data-shelfish])').forEach(ul => {
+            const first = ul.querySelector('li');
+            if (first?.textContent.includes('🔢')) this.transform(ul);
         });
     }
 
-    transform(ul, nodeArray) {
-        ul.dataset.shelfishLoaded = "true";
-        const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
+    transform(ul) {
+        ul.dataset.shelfish = '1';
+        const items = [...ul.querySelectorAll('li')]
+            .map(li => this.parse(li.innerText || li.textContent))
+            .filter(Boolean);
         if (!items.length) return;
 
-        let html = '';
-        const groups = [{ t: ['Book'] }, { t: ['Movie', 'TV'] }, { t: ['Music'] }];
-        groups.forEach(g => {
-            const matches = items.filter(i => g.t.includes(i.type));
-            if (matches.length) html += `<div class="shelfish-grid">${matches.map(i => this.render(i)).join('')}</div>`;
-        });
+        // group by media type in display order
+        const grids = [['Book'], ['Movie', 'TV'], ['Music']]
+            .map(types => items.filter(i => types.includes(i.type)))
+            .filter(g => g.length)
+            .map(g => `<div class="shelfish-grid">${g.map(i => this.render(i)).join('')}</div>`)
+            .join('');
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
-        container.innerHTML = html;
+        if (this.globalBg) container.style.setProperty('--shelfish-card-bg', this.globalBg);
+        container.innerHTML = grids;
         ul.replaceWith(container);
 
-        container.querySelectorAll('.shelfish-card').forEach(c => {
-            c._shelfishItem = items.find(i => i.id === c.id);
-            this.shelfish_lazy.observe(c);
+        container.querySelectorAll('.shelfish-card').forEach(card => {
+            card._item = items.find(i => i.id === card.id);
+            this.observer.observe(card);
         });
     }
 
-    validURL(val) {
-        /* Accept '#', '#' with params, 'http', or '/' paths. */
-        if (val.startsWith('#')) return true;
-        if (val.startsWith('http')) return true;
-        if (val.startsWith('/')) return true;
-        return false;
-    }
+    parse(raw) {
+        const parts = raw.split('|').map(s => s.trim());
+        const [tpTit, author] = parts;
+        const link  = parts[2] || '#';
+        const label = (parts[3] && parts[3] !== '#') ? parts[3] : 'Read review';
 
-    parse(rawLine) {
-        const parts = rawLine.split('|').map(s => s.trim());
-        if (parts.length < 2) return null;
+        const tag = tpTit?.match(/\[(.*?)\]/i);
+        if (!tag || !author || author === '#') return null;
+        if (!link.startsWith('#') && !link.startsWith('http') && !link.startsWith('/')) return null;
 
-        const [tpTit, cr] = parts;
-        const im = parts[2] || '#';
-        let lk = parts[3] || '#';
-        const label = (parts[4] && parts[4] !== '#') ? parts[4] : 'Read review';
-
-        let customBg = null;
-        if (lk !== '#') {
-            try {
-                let urlObj;
-                if (lk.startsWith('http')) {
-                    urlObj = new URL(lk);
-                } else if (lk.startsWith('/')) {
-                    urlObj = new URL(lk, window.location.origin);
-                } else if (lk.startsWith('#') && lk.length > 1) {
-                    /* Convert hash params like #bg=red to dummy query params for easy parsing */
-                    urlObj = new URL(`http://dummy${lk.replace('#', '?')}`);
-                }
-
-                if (urlObj && urlObj.searchParams.has('bg')) {
-                    customBg = urlObj.searchParams.get('bg');
-                    urlObj.searchParams.delete('bg');
-                    
-                    if (lk.startsWith('http')) {
-                        lk = urlObj.href;
-                    } else if (lk.startsWith('/')) {
-                        lk = urlObj.pathname + urlObj.search + urlObj.hash;
-                    } else if (lk.startsWith('#')) {
-                        const search = urlObj.search.replace('?', '#');
-                        lk = search || '#';
-                    }
-                }
-            } catch (e) {}
-        }
-
-        const tag = tpTit.match(/\[(.*?)\]/i);
-        if (!tag || !cr || cr === '#') return null;
-        if (!this.validURL(im) || !this.validURL(lk)) return null;
-
-        const bType = tag[1].trim().toLowerCase();
-        let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
+        const t = tag[1].trim().toLowerCase();
+        const type = t === 'tv' ? 'TV' : t.charAt(0).toUpperCase() + t.slice(1);
 
         return {
-            id: `shelfish-${Math.random().toString(36).substr(2,9)}`,
-            type: typeStr,
+            id:    `sf-${Math.random().toString(36).slice(2, 9)}`,
+            type,
             title: tpTit.replace(tag[0], '').trim(),
-            author: cr,
-            img: im !== '#' ? im : null,
-            link: lk !== '#' ? lk : null,
+            author,
+            link:  link !== '#' ? link : null,
             label,
-            customBg
         };
     }
 
     render(i) {
-        /* shelfish-has-review flattens the shared border between card and button when a link exists. */
-        const hasRev = i.link ? 'shelfish-has-review' : '';
-        const linkHTML = i.link
-            ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
-            : `<div class="shelfish-btn-wrapper"><div class="superbutton-link superbutton-rounded shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        const styleTag = i.customBg ? ` style="--shelfish-card-bg: ${i.customBg}; background: var(--shelfish-card-bg) !important;"` : '';
-        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"${styleTag}><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
+        const cls = i.link ? 'shelfish-has-review' : '';
+        const btn = i.link
+            ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
+            : `<div class="shelfish-btn-wrapper"><div class="shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
+        return `<div class="shelfish-item-wrapper ${cls}">
+            <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}">
+                <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div>
+                <div class="shelfish-info">
+                    <div class="shelfish-title">${i.title}</div>
+                    <div class="shelfish-author">${i.author}</div>
+                </div>
+            </div>${btn}</div>`;
     }
 
     async loadArt(card) {
-        const i = card._shelfishItem;
+        const i = card._item;
         const img = card.querySelector('img');
-        const injectPlaceholder = () => card.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`;
+        const placeholder = () => card.querySelector('.shelfish-thumb').innerHTML =
+            `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`;
 
         try {
-            const url = i.img || await this.fetchAPI(i);
-            if (url) {
-                img.src = url;
-                img.onerror = injectPlaceholder;
-            } else { injectPlaceholder(); }
-        } catch (e) { injectPlaceholder(); }
+            const url = await this.fetchAPI(i);
+            if (url) { img.src = url; img.onerror = placeholder; }
+            else placeholder();
+        } catch (_) { placeholder(); }
     }
 
     async fetchAPI({ type, title, author }) {
-        /* TMDB for films and TV, iTunes Search API for books and music. */
-        const isVid = ['Movie', 'TV'].includes(type);
-        const q = encodeURIComponent(title + (isVid ? '' : ' ' + author));
-        const url = isVid ? `https://api.themoviedb.org/3/search/${type === 'Movie' ? 'movie' : 'tv'}?api_key=${this.key}&query=${q}`
-                          : `https://itunes.apple.com/search?term=${q}&media=${type === 'Music' ? 'music' : 'ebook'}&limit=1`;
+        // tmdb for video, itunes for books + music
+        const isVideo = ['Movie', 'TV'].includes(type);
+        const q = encodeURIComponent(title + (isVideo ? '' : ' ' + author));
+        const url = isVideo
+            ? `https://api.themoviedb.org/3/search/${type === 'Movie' ? 'movie' : 'tv'}?api_key=${this.key}&query=${q}`
+            : `https://itunes.apple.com/search?term=${q}&media=${type === 'Music' ? 'music' : 'ebook'}&limit=1`;
         try {
-            const res = await (await fetch(url)).json();
-            const hit = res.results && res.results.length > 0 ? res.results[0] : null;
-            if (hit && hit.poster_path) return `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
-            if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1500-999.jpg');
-        } catch (e) {}
+            const { results } = await (await fetch(url)).json();
+            const hit = results?.[0];
+            if (hit?.poster_path)  return `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
+            if (hit?.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1500-999.jpg');
+        } catch (_) {}
         return null;
     }
 }
-/* SAFETY TRIGGER: Waits for DOM to fully load before looking for documents to avoid Head/Markdown injection crashes */
-const initShelfish = () => { window.ShelfishInstance = new Shelfish(); };
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initShelfish); } else { initShelfish(); }
+
+// wait for dom before scanning to avoid markdown injection edge cases
+const _sf = () => { window.ShelfishInstance = new Shelfish(); };
+document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', _sf) : _sf();
