@@ -3,12 +3,6 @@ class Shelfish {
     constructor(config = {}) {
         this.key = config.tmdbKey || '8942f1dc81e199d343c97639c0bbca67';
 
-        // read optional ?bg= param from the script tag itself
-        const src = document.currentScript?.src;
-        if (src?.includes('?')) {
-            try { this.globalBg = new URL(src).searchParams.get('bg'); } catch (_) {}
-        }
-
         this.icons = {
             Book:  `<svg viewBox="0 0 24 24"><path d="M19 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h1V2h-1V4z"/></svg>`,
             Movie: `<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>`,
@@ -48,7 +42,6 @@ class Shelfish {
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
-        if (this.globalBg) container.style.setProperty('--shelfish-card-bg', this.globalBg);
         container.innerHTML = grids;
         ul.replaceWith(container);
 
@@ -86,14 +79,7 @@ class Shelfish {
         const btn = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : `<div class="shelfish-btn-wrapper"><div class="shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        return `<div class="shelfish-item-wrapper ${cls}">
-            <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}">
-                <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div>
-                <div class="shelfish-info">
-                    <div class="shelfish-title">${i.title}</div>
-                    <div class="shelfish-author">${i.author}</div>
-                </div>
-            </div>${btn}</div>`;
+        return `<div class="shelfish-item-wrapper ${cls}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${btn}</div>`;
     }
 
     async loadArt(card) {

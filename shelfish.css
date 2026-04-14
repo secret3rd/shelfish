@@ -77,18 +77,18 @@
     padding: 0.6em 1em;
     box-sizing: border-box;
     border: 1.5px dotted var(--shelfish-border);
-    background: transparent;
-    color: var(--shelfish-text);
+    background: transparent !important;
+    color: var(--shelfish-text) !important;
     border-radius: 6px;
-    text-decoration: none;
+    text-decoration: none !important;
     font-size: 0.85rem;
     font-weight: 600;
     transition: background 0.2s ease, color 0.2s ease;
 }
 .shelfish-container .shelfish-btn:hover {
-    background: var(--shelfish-text);
-    color: var(--shelfish-page-bg);
-    text-decoration: none;
+    background: var(--shelfish-text) !important;
+    color: var(--shelfish-page-bg) !important;
+    text-decoration: none !important;
 }
 .shelfish-container .shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
 .shelfish-container .shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; }
