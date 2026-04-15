@@ -1,21 +1,9 @@
-/* scoped to .shelfish-container to avoid host theme conflicts */
-.shelfish-container {
-    margin: 2rem 0;
-    clear: both;
-    color-scheme: light dark;
-    --shelfish-card-bg: color-mix(in srgb, currentColor 4%, transparent);
-    --shelfish-border: color-mix(in srgb, currentColor 12%, transparent);
-    --shelfish-text: currentColor;
-    /* first found theme token wins; os black/white if none defined */
-    --shelfish-accent: var(--link-color, var(--color-primary, var(--accent-color,
-                       var(--background-color, var(--bg-color, var(--color-bg,
-                       var(--color-background, light-dark(#000000, #ffffff))))))));
-    /* hover text is always the os-opposite so it contrasts with the accent fill */
-    --shelfish-hover-text: light-dark(#ffffff, #000000);
-}
+/* shelfish — fixed dark card design, all classes exposed for user overrides */
 
-/* grid */
-.shelfish-container .shelfish-grid {
+/* layout */
+.shelfish-container { margin: 2rem 0; clear: both; }
+
+.shelfish-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
     gap: 3rem 1.5rem;
@@ -23,8 +11,8 @@
     margin-bottom: 2rem;
 }
 
-/* item wrapper — flex column keeps the button flush to the bottom */
-.shelfish-container .shelfish-item-wrapper {
+/* item wrapper keeps button flush to card bottom */
+.shelfish-item-wrapper {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
@@ -32,22 +20,22 @@
 }
 
 /* card */
-.shelfish-container .shelfish-card {
-    background: var(--shelfish-card-bg);
-    color: var(--shelfish-text);
+.shelfish-card {
+    background: #1e2d3d !important;
+    color: #e8edf2 !important;
     border-radius: 10px;
     padding: 0.8rem 0.8rem 1.1rem;
-    border: 1px solid var(--shelfish-border);
+    border: 1px solid rgba(232, 237, 242, 0.12) !important;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
     flex: 1;
-    box-shadow: 0 2px 4px color-mix(in srgb, currentColor 5%, transparent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 /* thumbnail */
-.shelfish-container .shelfish-thumb {
+.shelfish-thumb {
     width: 100%;
     aspect-ratio: 2/3;
     border-radius: 6px;
@@ -55,8 +43,8 @@
     overflow: hidden;
     flex-shrink: 0;
 }
-.shelfish-container .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1; }
-.shelfish-container .shelfish-thumb img {
+.shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1; }
+.shelfish-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -65,57 +53,58 @@
     transition: opacity 0.8s ease-in-out;
     z-index: 2;
 }
-.shelfish-container .shelfish-thumb img.shelfish-loaded { opacity: 1; }
+.shelfish-thumb img.shelfish-loaded { opacity: 1; }
 
 /* metadata */
-.shelfish-container .shelfish-info { display: flex; flex-direction: column; gap: 0.3rem; }
-.shelfish-container .shelfish-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; margin: 0; }
-.shelfish-container .shelfish-author { font-size: 0.8rem; opacity: 0.8; line-height: 1.4; }
+.shelfish-info { display: flex; flex-direction: column; gap: 0.3rem; }
+.shelfish-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; margin: 0; }
+.shelfish-author { font-size: 0.8rem; opacity: 0.65; line-height: 1.4; }
 
 /* review button */
-.shelfish-container .shelfish-btn-wrapper { display: flex; width: 100%; margin: 0; }
-.shelfish-container .shelfish-btn {
+.shelfish-btn-wrapper { display: flex; width: 100%; margin: 0; }
+.shelfish-btn {
     width: 100%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: 0.4rem;
     padding: 0.6em 1em;
     box-sizing: border-box;
-    border: 1.5px dotted var(--shelfish-accent) !important;
+    border: 1.5px dotted rgba(232, 237, 242, 0.5) !important;
     background: transparent !important;
-    color: var(--shelfish-accent) !important;
+    color: #e8edf2 !important;
     border-radius: 6px;
     text-decoration: none !important;
     font-size: 0.85rem;
     font-weight: 600;
     transition: all 0.2s ease !important;
 }
-.shelfish-container .shelfish-btn:hover {
-    background: var(--shelfish-accent) !important;
-    color: var(--shelfish-hover-text) !important;
+.shelfish-btn:hover {
+    background: #e8edf2 !important;
+    color: #1e2d3d !important;
+    border-color: #e8edf2 !important;
     text-decoration: none !important;
 }
-.shelfish-container .shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
-.shelfish-container .shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block; }
-.shelfish-container .shelfish-btn:hover .shelfish-arrow { transform: translateX(4px); }
+.shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
+.shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block; }
+.shelfish-btn:hover .shelfish-arrow { transform: translateX(4px); }
 
 /* flatten shared border between card and button when a review link is present */
-.shelfish-container .shelfish-has-review .shelfish-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-.shelfish-container .shelfish-has-review .shelfish-btn { border-top-left-radius: 0; border-top-right-radius: 0; }
+.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.shelfish-has-review .shelfish-btn { border-top-left-radius: 0; border-top-right-radius: 0; }
 
 /* art placeholder */
-.shelfish-container .shelfish-placeholder {
+.shelfish-placeholder {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, currentColor 10%, transparent);
+    background: rgba(255, 255, 255, 0.06);
     z-index: 1;
 }
-.shelfish-container .shelfish-placeholder svg { width: 40%; height: 40%; fill: color-mix(in srgb, currentColor 30%, transparent); }
+.shelfish-placeholder svg { width: 40%; height: 40%; fill: rgba(232, 237, 242, 0.25); }
 
 @media (max-width: 480px) {
-    .shelfish-container .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2.5rem 1.25rem; }
+    .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2.5rem 1.25rem; }
 }

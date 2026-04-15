@@ -75,21 +75,27 @@ Essentially, the first two fields are mandatory. If you leave them empty or type
 
 Chances are you will do one minor error and the whole shelf will break like my attempts at IKEA DIY furniture. 
 But the relatively simple format makes it easy to debug and fix.
-## Theme Compatibility
+## Customising
 
-Shelfish reads your Bear Blog theme's CSS variables to colour the review button and its hover state. It checks for the following tokens in order:
+Shelfish ships with a fixed dark card design. All elements have stable class names you can override in your own CSS:
 
-| What it needs | Variables checked (in order) | Final fallback |
-|---|---|---|
-| Accent / link colour | `--link-color` → `--color-primary` → `--accent-color` | `CanvasText` (OS text colour) |
-| Page background colour | `--background-color` → `--bg-color` → `--color-bg` → `--color-background` | `Canvas` (OS background colour) |
+| Class | What it styles |
+|---|---|
+| `.shelfish-container` | The entire component wrapper |
+| `.shelfish-grid` | The CSS grid holding the cards |
+| `.shelfish-card` | Individual media cards |
+| `.shelfish-thumb` | Thumbnail image container |
+| `.shelfish-info` | Text area (title + author) inside the card |
+| `.shelfish-title` | Title text |
+| `.shelfish-author` | Author / creator text |
+| `.shelfish-btn-wrapper` | Wrapper around the review button |
+| `.shelfish-btn` | The review link button |
+| `.shelfish-placeholder` | Shown when no poster art is found |
 
-The `Canvas` / `CanvasText` fallbacks are OS-level system colours that flip automatically between dark and light mode.
-
-If your theme's `a:hover` rule overrides the button hover and the label text disappears, add this one line to your theme CSS:
-
+**Example — change card colour:**
 ```css
-a.shelfish-btn:hover { color: var(--background-color, Canvas) !important; }
+.shelfish-card { background: #2a1a2e !important; }
+.shelfish-btn:hover { background: #fff !important; color: #2a1a2e !important; }
 ```
 
 ---
