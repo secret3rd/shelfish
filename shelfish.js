@@ -82,8 +82,8 @@ class Shelfish {
     render(i) {
         const cls = i.link ? 'shelfish-has-review' : '';
         const btn = i.link
-            ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="shelfish-btn"><span>${i.label} <span class="shelfish-arrow">→</span></span></a></div>`
-            : `<div class="shelfish-btn-wrapper"><div class="shelfish-btn shelfish-hidden"><span>${i.label} <span class="shelfish-arrow">→</span></span></div></div>`;
+            ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
+            : `<div class="shelfish-btn-wrapper"><div class="shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
         return `<div class="shelfish-item-wrapper ${cls}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${btn}</div>`;
     }
 
