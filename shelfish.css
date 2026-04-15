@@ -5,7 +5,6 @@
     --shelfish-card-bg: color-mix(in srgb, currentColor 4%, transparent);
     --shelfish-border: color-mix(in srgb, currentColor 12%, transparent);
     --shelfish-text: currentColor;
-    --shelfish-page-bg: var(--background-color, Canvas);
 }
 
 /* grid */
