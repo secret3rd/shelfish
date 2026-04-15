@@ -83,7 +83,7 @@
     text-decoration: none !important;
     font-size: 0.85rem;
     font-weight: 600;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease !important;
 }
 .shelfish-container .shelfish-btn:hover {
     background: var(--shelfish-text) !important;
