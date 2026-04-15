@@ -5,7 +5,7 @@
     --shelfish-card-bg: color-mix(in srgb, currentColor 4%, transparent);
     --shelfish-border: color-mix(in srgb, currentColor 12%, transparent);
     --shelfish-text: currentColor;
-    --shelfish-accent: var(--link-color, var(--primary-color, currentColor));
+    --shelfish-accent: var(--link-color, var(--primary-color, CanvasText));
 }
 
 /* grid */
@@ -87,7 +87,7 @@
 }
 .shelfish-container .shelfish-btn:hover {
     background: var(--shelfish-accent) !important;
-    color: var(--background-color, #fff) !important;
+    color: var(--background-color, Canvas) !important;
     text-decoration: none !important;
 }
 .shelfish-container .shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
