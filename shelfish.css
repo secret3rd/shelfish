@@ -1,15 +1,9 @@
-/* shelfish — fixed design, os-aware light/dark swap, all classes exposed for user overrides */
+/* shelfish — fixed design with os-aware light/dark, classes exposed for user overrides */
 
 /* layout */
-.shelfish-container {
-    margin: 2rem 0;
-    clear: both;
-    color-scheme: light dark;
-    --sf-bg: light-dark(#e8edf2, #1e2d3d);
-    --sf-fg: light-dark(#1e2d3d, #e8edf2);
-}
+.shelfish-container { margin: 2rem 0; clear: both; }
 
-.shelfish-grid {
+.shelfish-container .shelfish-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
     gap: 3rem 1.5rem;
@@ -18,30 +12,30 @@
 }
 
 /* item wrapper keeps button flush to card bottom */
-.shelfish-item-wrapper {
+.shelfish-container .shelfish-item-wrapper {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
     height: 100%;
 }
 
-/* card */
-.shelfish-card {
-    background: var(--sf-bg) !important;
-    color: var(--sf-fg) !important;
+/* card — dark mode default */
+.shelfish-container .shelfish-card {
+    background: #1e2d3d !important;
+    color: #e8edf2 !important;
     border-radius: 10px;
     padding: 0.8rem 0.8rem 1.1rem;
-    border: 1px solid color-mix(in srgb, var(--sf-fg) 15%, transparent) !important;
+    border: 1px solid rgba(232, 237, 242, 0.15) !important;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
     flex: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* thumbnail */
-.shelfish-thumb {
+.shelfish-container .shelfish-thumb {
     width: 100%;
     aspect-ratio: 2/3;
     border-radius: 6px;
@@ -49,8 +43,8 @@
     overflow: hidden;
     flex-shrink: 0;
 }
-.shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1; }
-.shelfish-thumb img {
+.shelfish-container .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1; }
+.shelfish-container .shelfish-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -59,16 +53,28 @@
     transition: opacity 0.8s ease-in-out;
     z-index: 2;
 }
-.shelfish-thumb img.shelfish-loaded { opacity: 1; }
+.shelfish-container .shelfish-thumb img.shelfish-loaded { opacity: 1; }
+
+/* placeholder */
+.shelfish-container .shelfish-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(232, 237, 242, 0.07);
+    z-index: 1;
+}
+.shelfish-container .shelfish-placeholder svg { width: 40%; height: 40%; fill: rgba(232, 237, 242, 0.25); }
 
 /* metadata */
-.shelfish-info { display: flex; flex-direction: column; gap: 0.3rem; }
-.shelfish-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; margin: 0; }
-.shelfish-author { font-size: 0.8rem; opacity: 0.65; line-height: 1.4; }
+.shelfish-container .shelfish-info { display: flex; flex-direction: column; gap: 0.3rem; }
+.shelfish-container .shelfish-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; margin: 0; }
+.shelfish-container .shelfish-author { font-size: 0.8rem; opacity: 0.65; line-height: 1.4; }
 
-/* review button */
-.shelfish-btn-wrapper { display: flex; width: 100%; margin: 0; }
-.shelfish-btn {
+/* review button — dark mode default */
+.shelfish-container .shelfish-btn-wrapper { display: flex; width: 100%; margin: 0; }
+.shelfish-container .shelfish-btn {
     width: 100%;
     display: inline-flex !important;
     align-items: center !important;
@@ -76,41 +82,50 @@
     gap: 0.4rem;
     padding: 0.6em 1em;
     box-sizing: border-box;
-    border: 1.5px dotted color-mix(in srgb, var(--sf-fg) 55%, transparent) !important;
+    border: 1.5px dotted rgba(232, 237, 242, 0.45) !important;
     background: transparent !important;
-    color: var(--sf-fg) !important;
+    color: #e8edf2 !important;
     border-radius: 6px;
     text-decoration: none !important;
     font-size: 0.85rem;
     font-weight: 600;
     transition: all 0.2s ease !important;
 }
-.shelfish-btn:hover {
-    background: var(--sf-fg) !important;
-    color: var(--sf-bg) !important;
-    border-color: var(--sf-fg) !important;
+.shelfish-container .shelfish-btn:hover {
+    background: #e8edf2 !important;
+    color: #1e2d3d !important;
+    border-color: #e8edf2 !important;
     text-decoration: none !important;
 }
-.shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
-.shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block; }
-.shelfish-btn:hover .shelfish-arrow { transform: translateX(4px); }
+.shelfish-container .shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
+.shelfish-container .shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block; }
+.shelfish-container .shelfish-btn:hover .shelfish-arrow { transform: translateX(4px); }
 
-/* flatten shared border between card and button when a review link is present */
-.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-.shelfish-has-review .shelfish-btn { border-top-left-radius: 0; border-top-right-radius: 0; }
+/* flatten shared border between card and button */
+.shelfish-container .shelfish-has-review .shelfish-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.shelfish-container .shelfish-has-review .shelfish-btn { border-top-left-radius: 0; border-top-right-radius: 0; }
 
-/* art placeholder */
-.shelfish-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: color-mix(in srgb, var(--sf-fg) 8%, transparent);
-    z-index: 1;
+/* light mode overrides */
+@media (prefers-color-scheme: light) {
+    .shelfish-container .shelfish-card {
+        background: #e8edf2 !important;
+        color: #1e2d3d !important;
+        border-color: rgba(30, 45, 61, 0.15) !important;
+        box-shadow: 0 4px 12px rgba(30, 45, 61, 0.1);
+    }
+    .shelfish-container .shelfish-placeholder { background: rgba(30, 45, 61, 0.07); }
+    .shelfish-container .shelfish-placeholder svg { fill: rgba(30, 45, 61, 0.25); }
+    .shelfish-container .shelfish-btn {
+        border-color: rgba(30, 45, 61, 0.45) !important;
+        color: #1e2d3d !important;
+    }
+    .shelfish-container .shelfish-btn:hover {
+        background: #1e2d3d !important;
+        color: #e8edf2 !important;
+        border-color: #1e2d3d !important;
+    }
 }
-.shelfish-placeholder svg { width: 40%; height: 40%; fill: color-mix(in srgb, var(--sf-fg) 25%, transparent); }
 
 @media (max-width: 480px) {
-    .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2.5rem 1.25rem; }
+    .shelfish-container .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2.5rem 1.25rem; }
 }
