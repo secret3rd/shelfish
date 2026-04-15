@@ -9,6 +9,8 @@
 .shelfish-container {
     margin: 2rem 0;
     clear: both;
+    font-size: 16px; /* explicit baseline — don't inherit host theme's font size */
+    /* font-family intentionally not set — inherits from the host theme */
 }
 
 .shelfish-container .shelfish-grid {
