@@ -41,7 +41,6 @@ class Shelfish {
         const container = document.createElement('div');
         container.className = 'shelfish-container';
         container.innerHTML = html;
-        container.style.setProperty('--shelfish-bg', window.getComputedStyle(document.body).color);
         ul.replaceWith(container);
 
         container.querySelectorAll('.shelfish-card').forEach(c => {

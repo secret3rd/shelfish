@@ -1,14 +1,15 @@
 .shelfish-container { 
-    --shelfish-text: color-mix(in srgb, var(--shelfish-bg), lightgray 70%);
-    --shelfish-shadow-color: color-mix(in srgb, var(--shelfish-bg), darkgray 30%);
+    --shelfish-text: currentColor;
+    --shelfish-bg-tint: color-mix(in srgb, currentColor, transparent 88%);
+    --shelfish-border: color-mix(in srgb, currentColor, transparent 80%);
     background: transparent !important; margin: 2rem 0 !important; clear: both !important; 
 }
 .shelfish-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important; gap: 3rem 1.5rem !important; align-items: stretch !important; margin-bottom: 2rem !important; }
 
 /* Card layout — flex column so the review button always sits flush at the bottom. */
-.shelfish-item-wrapper { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; height: 100% !important; }
-.shelfish-card { background: var(--shelfish-bg) !important; border-radius: 10px !important; padding: 0.8rem !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; gap: 0.6rem !important; flex: 1 !important; color: var(--shelfish-text) !important; box-shadow: 0 4px 6px -1px var(--shelfish-shadow-color) !important; }
-.shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 6px !important; position: relative !important; overflow: hidden !important; flex-shrink: 0 !important; }
+.shelfish-item-wrapper { display: flex !important; flex-direction: column !important; gap: 0 !important; height: 100% !important; }
+.shelfish-card { background: var(--shelfish-bg-tint) !important; border-radius: 10px !important; padding: 0.8rem !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; gap: 0.6rem !important; flex: 1 !important; color: var(--shelfish-text) !important; border: 1px solid var(--shelfish-border) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important; }
+.shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 6px !important; position: relative !important; overflow: hidden !important; flex-shrink: 0 !important; border: 1px solid var(--shelfish-border) !important; background: var(--shelfish-bg-tint) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1 !important; }
 .shelfish-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.8s ease-in-out !important; z-index: 2 !important; }
 .shelfish-thumb img.shelfish-loaded { opacity: 1 !important; }
@@ -18,16 +19,16 @@
 
 /* Review button — ghost variant holds row height when no link is present. */
 .shelfish-btn-wrapper { display: flex !important; justify-content: center !important; width: 100% !important; align-self: center !important; margin: 0 !important; }
-.shelfish-btn { width: 100% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.4rem !important; padding: 0.6em 1em !important; box-sizing: border-box !important; border: 1.5px solid var(--shelfish-bg) !important; background-color: transparent !important; color: var(--shelfish-bg) !important; border-radius: 6px !important; text-decoration: none !important; font-size: 0.85rem !important; font-weight: 600 !important; transition: all 0.2s ease !important; }
-.shelfish-btn:hover { background-color: var(--shelfish-bg) !important; color: var(--shelfish-text) !important; text-decoration: none !important; }
+.shelfish-btn { width: 100% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.4rem !important; padding: 0.6em 1em !important; box-sizing: border-box !important; border: 1px solid var(--shelfish-border) !important; background-color: transparent !important; color: var(--shelfish-text) !important; border-radius: 6px !important; text-decoration: none !important; font-size: 0.85rem !important; font-weight: 600 !important; transition: all 0.2s ease !important; }
+.shelfish-btn:hover { background-color: color-mix(in srgb, var(--shelfish-text), transparent 90%) !important; border-color: color-mix(in srgb, var(--shelfish-text), transparent 60%) !important; text-decoration: none !important; }
 .shelfish-btn.shelfish-hidden { visibility: hidden !important; pointer-events: none !important; opacity: 0 !important; background: transparent !important; color: transparent !important; border: none !important; }
 .shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block !important; }
 .shelfish-btn:hover .shelfish-arrow { transform: translateX(4px) !important; }
-.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom: none !important; }
 .shelfish-has-review .shelfish-btn { border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; }
 
 /* Shown when no poster art is found via API. */
-.shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: var(--shelfish-bg) !important; z-index: 1 !important; }
-.shelfish-placeholder svg { width: 40% !important; height: 40% !important; fill: var(--shelfish-text) !important; }
+.shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: var(--shelfish-bg-tint) !important; z-index: 1 !important; }
+.shelfish-placeholder svg { width: 40% !important; height: 40% !important; fill: var(--shelfish-text) !important; opacity: 0.15 !important; }
 
 @media (max-width: 480px) { .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important; gap: 2.5rem 1.25rem !important; } }
