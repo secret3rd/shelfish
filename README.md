@@ -105,4 +105,4 @@ You are free to pick these apart and host them yourself for maximum performance.
 
 ---
 
-If you have any feedback or thoughts, you can contact me by writing to me at **hello [at] murugappan.com**
+If you have any feedback or thoughts, you can contact me through my [website](https://murugappan.com/get-in-touch) or write to me at **hello [at] murugappan.com**
