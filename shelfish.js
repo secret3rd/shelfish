@@ -49,14 +49,6 @@ class Shelfish {
         });
     }
 
-    validURL(val) {
-        /* Only '#', 'http(s)://...', or '/relative/' paths are accepted. Anything else drops the entry. */
-        if (val === '#') return true;
-        if (val.startsWith('http')) return true;
-        if (val.startsWith('/') && val.endsWith('/')) return true;
-        return false;
-    }
-
     parse(rawLine) {
         const parts = rawLine.split('|').map(s => s.trim());
         if (parts.length < 2 || parts.length > 4) return null;
