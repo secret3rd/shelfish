@@ -32,7 +32,7 @@ Any list that starts with the `🔢` emoji triggers the script, and transforms a
 - **Trusted Sources**: Books and music art are fetched from the iTunes library. Movies and TV shows pull from The Movie DB.
 
 ### Bells and Whistles
-- **Custom Theming**: The CSS is extremely lightweight and intelligently adapts to your site's current foreground/background colors. You can optionally override the active card background globally by passing a `?bg=` parameter in the script src.
+- **Custom Theming**: The plugin automatically adapts to your site's foreground and background colors using CSS variables.
 - **Accessibility**: Alt text for images is generated on the basis of text input.
 - **Flexible Links**: You can link to reviews, the album's lead single, a download link, anything that adds a layer. You can also leave this empty.
   
@@ -49,8 +49,7 @@ Paste this at the top of your `/now/` page:
 ```html
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.css">
-<!-- You can optionally pass a custom background via the bg param -->
-<script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js?bg=color-mix(in srgb, var(--link-color) 10%, transparent)"></script>
+<script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js"></script>
 </head>
 
 Some body content
@@ -76,6 +75,22 @@ Essentially, the first two fields are mandatory. If you leave them empty or type
 
 Chances are you will do one minor error and the whole shelf will break like my attempts at IKEA DIY furniture. 
 But the relatively simple format makes it easy to debug and fix.
+## Theme Compatibility
+
+Shelfish reads your Bear Blog theme's CSS variables to colour the review button and its hover state. It checks for the following tokens in order:
+
+| What it needs | Variables checked (in order) | Final fallback |
+|---|---|---|
+| Accent / link colour | `--link-color` → `--color-primary` → `--accent-color` | `CanvasText` (OS text colour) |
+| Page background colour | `--background-color` → `--bg-color` → `--color-bg` → `--color-background` | `Canvas` (OS background colour) |
+
+The `Canvas` / `CanvasText` fallbacks are OS-level system colours that flip automatically between dark and light mode.
+
+If your theme's `a:hover` rule overrides the button hover and the label text disappears, add this one line to your theme CSS:
+
+```css
+a.shelfish-btn:hover { color: var(--background-color, Canvas) !important; }
+```
 
 ---
 
