@@ -5,10 +5,10 @@ class Shelfish {
     constructor(config = {}) {
         this.key = config.tmdbKey || '8942f1dc81e199d343c97639c0bbca67';
         this.icons = {
-            'Book': `&#x1F4DA;&#xFE0E;`,
-            'Movie': `&#x1F3AC;&#xFE0E;`,
-            'TV': `&#x1F4FA;&#xFE0E;`,
-            'Music': `&#x1F3B5;&#xFE0E;`
+            'Book': `📚`,
+            'Movie': `🎬`,
+            'TV': `📺`,
+            'Music': `🎵`
         };
         this.setupLazyLoader();
         this.scan();
@@ -86,7 +86,7 @@ class Shelfish {
     async loadArt(card) {
         const i = card._shelfishItem;
         const img = card.querySelector('img');
-        const injectPlaceholder = () => card.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`;
+        const injectPlaceholder = () => card.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
 
         try {
             const url = i.img || await this.fetchAPI(i);
