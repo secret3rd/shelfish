@@ -5,10 +5,10 @@ class Shelfish {
     constructor(config = {}) {
         this.key = config.tmdbKey || '8942f1dc81e199d343c97639c0bbca67';
         this.icons = {
-            'Book': `<svg viewBox="0 0 24 24"><path d="M19 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h1V2h-1V4z"/></svg>`,
-            'Movie': `<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>`,
-            'TV': `<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>`,
-            'Music': `<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-4z"/></svg>`
+            'Book': `📚`,
+            'Movie': `🎬`,
+            'TV': `📺`,
+            'Music': `🎵`
         };
         this.setupLazyLoader();
         this.scan();
@@ -36,12 +36,7 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        let html = '';
-        const groups = [{ t: ['Book'] }, { t: ['Movie', 'TV'] }, { t: ['Music'] }];
-        groups.forEach(g => {
-            const matches = items.filter(i => g.t.includes(i.type));
-            if (matches.length) html += `<div class="shelfish-grid">${matches.map(i => this.render(i)).join('')}</div>`;
-        });
+        let html = `<div class="shelfish-grid">${items.map(i => this.render(i)).join('')}</div>`;
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
@@ -54,26 +49,16 @@ class Shelfish {
         });
     }
 
-    validURL(val) {
-        /* Only '#', 'http(s)://...', or '/relative/' paths are accepted. Anything else drops the entry. */
-        if (val === '#') return true;
-        if (val.startsWith('http')) return true;
-        if (val.startsWith('/') && val.endsWith('/')) return true;
-        return false;
-    }
-
     parse(rawLine) {
         const parts = rawLine.split('|').map(s => s.trim());
-        if (parts.length < 2) return null;
+        if (parts.length < 2 || parts.length > 4) return null;
 
         const [tpTit, cr] = parts;
-        const im = parts[2] || '#';
-        const lk = parts[3] || '#';
-        const label = (parts[4] && parts[4] !== '#') ? parts[4] : 'Read review';
-
         const tag = tpTit.match(/\[(.*?)\]/i);
         if (!tag || !cr || cr === '#') return null;
-        if (!this.validURL(im) || !this.validURL(lk)) return null;
+
+        const lk = parts[2] && parts[2] !== '#' ? parts[2] : null;
+        const label = (lk && parts[3] && parts[3] !== '#') ? parts[3] : 'Read review';
 
         const bType = tag[1].trim().toLowerCase();
         let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
@@ -83,9 +68,9 @@ class Shelfish {
             type: typeStr,
             title: tpTit.replace(tag[0], '').trim(),
             author: cr,
-            img: im !== '#' ? im : null,
-            link: lk !== '#' ? lk : null,
-            label
+            img: null,
+            link: lk,
+            label: label
         };
     }
 
@@ -101,7 +86,7 @@ class Shelfish {
     async loadArt(card) {
         const i = card._shelfishItem;
         const img = card.querySelector('img');
-        const injectPlaceholder = () => card.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`;
+        const injectPlaceholder = () => card.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
 
         try {
             const url = i.img || await this.fetchAPI(i);
@@ -122,7 +107,7 @@ class Shelfish {
             const res = await (await fetch(url)).json();
             const hit = res.results && res.results.length > 0 ? res.results[0] : null;
             if (hit && hit.poster_path) return `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
-            if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1500-999.jpg');
+            if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1000bb.jpg');
         } catch (e) {}
         return null;
     }
