@@ -36,16 +36,12 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        let html = '';
-        const groups = [{ t: ['Book'] }, { t: ['Movie', 'TV'] }, { t: ['Music'] }];
-        groups.forEach(g => {
-            const matches = items.filter(i => g.t.includes(i.type));
-            if (matches.length) html += `<div class="shelfish-grid">${matches.map(i => this.render(i)).join('')}</div>`;
-        });
+        let html = `<div class="shelfish-grid">${items.map(i => this.render(i)).join('')}</div>`;
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
         container.innerHTML = html;
+        container.style.setProperty('--shelfish-bg', window.getComputedStyle(document.body).color);
         ul.replaceWith(container);
 
         container.querySelectorAll('.shelfish-card').forEach(c => {
