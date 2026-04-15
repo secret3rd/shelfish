@@ -19,21 +19,21 @@
     margin-bottom: 2rem;
 }
 
-/* each item = card stacked above its button */
+/* each item = card stacked above its button with a small gap */
 .shelfish-container .shelfish-item {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 0.75rem;
 }
 
 /* -- card --------------------------------------------------- */
+/* card — all corners rounded since button is separated by a gap */
 .shelfish-container .shelfish-card {
     background: #1e2d3d !important;
     color: #e8edf2 !important;
-    border-radius: 10px 10px 0 0;
+    border-radius: 10px;
     padding: 0.8rem 0.8rem 1rem;
     border: 1px solid rgba(232, 237, 242, 0.12) !important;
-    border-bottom: none !important;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -41,10 +41,9 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* card with no link gets rounded bottom corners too */
+/* card with no link keeps the same look */
 .shelfish-container .shelfish-item:not(.shelfish-has-link) .shelfish-card {
     border-radius: 10px !important;
-    border-bottom: 1px solid rgba(232, 237, 242, 0.12) !important;
 }
 
 /* -- thumbnail ---------------------------------------------- */
@@ -126,14 +125,13 @@
     padding: 0.55em 1em;
     box-sizing: border-box;
 
-    /* shape — bottom corners round to match card */
-    border-radius: 0 0 10px 10px;
+    /* shape — fully rounded since gap separates it from the card */
+    border-radius: 8px;
 
     /* colours: dark mode default */
-    background: rgba(232, 237, 242, 0.07) !important;
+    background: transparent !important;
     color: #e8edf2 !important;
-    border: 1px solid rgba(232, 237, 242, 0.2) !important;
-    border-top: none !important;
+    border: 1.5px dotted rgba(232, 237, 242, 0.45) !important;
 
     /* type */
     font-size: 0.82rem;
@@ -199,9 +197,9 @@
     }
 
     .shelfish-container .shelfish-btn {
-        background: rgba(30, 45, 61, 0.05) !important;
+        background: transparent !important;
         color: #1e2d3d !important;
-        border-color: rgba(30, 45, 61, 0.2) !important;
+        border-color: rgba(30, 45, 61, 0.4) !important;
     }
 
     .shelfish-container .shelfish-btn:hover {
