@@ -10,10 +10,6 @@ class Shelfish {
             Music: `<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-4z"/></svg>`,
         };
 
-        // read actual page background so hover inversion works on any theme
-        const bg = getComputedStyle(document.body).backgroundColor;
-        this.pageBg = (bg && bg !== 'rgba(0, 0, 0, 0)') ? bg : getComputedStyle(document.documentElement).backgroundColor;
-
         this.observer = new IntersectionObserver(entries => entries.forEach(e => {
             if (e.isIntersecting) { this.loadArt(e.target); this.observer.unobserve(e.target); }
         }), { rootMargin: '300px' });
@@ -46,7 +42,6 @@ class Shelfish {
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
-        if (this.pageBg) container.style.setProperty('--shelfish-page-bg', this.pageBg);
         container.innerHTML = grids;
         ul.replaceWith(container);
 

@@ -87,7 +87,7 @@
 }
 .shelfish-container .shelfish-btn:hover {
     background: var(--shelfish-accent) !important;
-    color: var(--background-color, CanvasText) !important;
+    color: var(--background-color, var(--color-bg, Canvas)) !important;
     text-decoration: none !important;
 }
 .shelfish-container .shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
