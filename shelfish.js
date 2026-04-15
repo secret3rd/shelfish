@@ -58,7 +58,7 @@ class Shelfish {
         if (!tag || !cr || cr === '#') return null;
 
         const lk = parts[2] && parts[2] !== '#' ? parts[2] : null;
-        const label = parts[3] && parts[3] !== '#' ? parts[3] : 'Read review';
+        const label = (lk && parts[3] && parts[3] !== '#') ? parts[3] : 'Read review';
 
         const bType = tag[1].trim().toLowerCase();
         let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
