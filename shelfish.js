@@ -60,16 +60,14 @@ class Shelfish {
 
     parse(rawLine) {
         const parts = rawLine.split('|').map(s => s.trim());
-        if (parts.length < 2) return null;
+        if (parts.length < 2 || parts.length > 4) return null;
 
         const [tpTit, cr] = parts;
-        const im = parts[2] || '#';
-        const lk = parts[3] || '#';
-        const label = (parts[4] && parts[4] !== '#') ? parts[4] : 'Read review';
-
         const tag = tpTit.match(/\[(.*?)\]/i);
         if (!tag || !cr || cr === '#') return null;
-        if (!this.validURL(im) || !this.validURL(lk)) return null;
+
+        const lk = parts[2] && parts[2] !== '#' ? parts[2] : null;
+        const label = parts[3] && parts[3] !== '#' ? parts[3] : 'Read review';
 
         const bType = tag[1].trim().toLowerCase();
         let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
@@ -79,9 +77,9 @@ class Shelfish {
             type: typeStr,
             title: tpTit.replace(tag[0], '').trim(),
             author: cr,
-            img: im !== '#' ? im : null,
-            link: lk !== '#' ? lk : null,
-            label
+            img: null,
+            link: lk,
+            label: label
         };
     }
 
@@ -118,7 +116,7 @@ class Shelfish {
             const res = await (await fetch(url)).json();
             const hit = res.results && res.results.length > 0 ? res.results[0] : null;
             if (hit && hit.poster_path) return `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
-            if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1500-999.jpg');
+            if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1000bb.jpg');
         } catch (e) {}
         return null;
     }
