@@ -1,12 +1,13 @@
 .shelfish-container { 
-    --shelfish-text: color-mix(in srgb, var(--shelfish-bg), gray 50%);
+    --shelfish-text: color-mix(in srgb, var(--shelfish-bg), lightgray 70%);
+    --shelfish-shadow-color: color-mix(in srgb, var(--shelfish-bg), darkgray 30%);
     background: transparent !important; margin: 2rem 0 !important; clear: both !important; 
 }
 .shelfish-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important; gap: 3rem 1.5rem !important; align-items: stretch !important; margin-bottom: 2rem !important; }
 
 /* Card layout — flex column so the review button always sits flush at the bottom. */
 .shelfish-item-wrapper { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; height: 100% !important; }
-.shelfish-card { background: var(--shelfish-bg) !important; border-radius: 10px !important; padding: 0.8rem !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; gap: 0.6rem !important; flex: 1 !important; color: var(--shelfish-text) !important; }
+.shelfish-card { background: var(--shelfish-bg) !important; border-radius: 10px !important; padding: 0.8rem !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; gap: 0.6rem !important; flex: 1 !important; color: var(--shelfish-text) !important; box-shadow: 0 4px 6px -1px var(--shelfish-shadow-color) !important; }
 .shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 6px !important; position: relative !important; overflow: hidden !important; flex-shrink: 0 !important; }
 .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1 !important; }
 .shelfish-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.8s ease-in-out !important; z-index: 2 !important; }
