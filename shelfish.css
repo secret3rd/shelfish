@@ -1,40 +1,220 @@
-/* Styles your media list. Scoped to .shelfish-* to avoid conflicts with the host theme. */
+/* ============================================================
+   shelfish.css
+   Fixed two-tone palette. Dark mode base; light mode swapped
+   via media query. No CSS variables used for color — pure hex
+   with .shelfish-container prefix for specificity everywhere.
+   ============================================================ */
+
+/* -- layout ------------------------------------------------- */
 .shelfish-container {
-    background: transparent !important;
-    margin: 2rem 0 !important;
-    clear: both !important;
-    font-family: inherit !important;
-    /* Minimal theme derivation variables */
-    --shelfish-accent: var(--link-color, var(--primary-color, var(--accent-color, currentColor)));
-    --shelfish-card-bg: var(--shelfish-accent);
-    --shelfish-card-text: var(--background-color, #fff);
-    --shelfish-border: rgba(255, 255, 255, 0.1);
+    margin: 2rem 0;
+    clear: both;
 }
-.shelfish-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important; gap: 3rem 1.5rem !important; align-items: stretch !important; margin-bottom: 2rem !important; }
 
-/* Card layout — flex column so the review button always sits flush at the bottom. */
-.shelfish-item-wrapper { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; height: 100% !important; }
-.shelfish-card { background: var(--shelfish-card-bg) !important; border-radius: 10px !important; padding: 0.8rem 0.8rem 1.1rem !important; border: 1px solid var(--shelfish-border) !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; gap: 0.6rem !important; flex: 1 !important; color: var(--shelfish-card-text) !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; }
-.shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 6px !important; position: relative !important; overflow: hidden !important; flex-shrink: 0 !important; }
-.shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1 !important; }
-.shelfish-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.8s ease-in-out !important; z-index: 2 !important; }
-.shelfish-thumb img.shelfish-loaded { opacity: 1 !important; }
-.shelfish-info { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; }
-.shelfish-title { font-size: 0.95rem !important; font-weight: 700 !important; line-height: 1.3 !important; letter-spacing: -0.01em !important; margin: 0 !important; font-family: var(--heading-font, inherit) !important; }
-.shelfish-author { font-size: 0.8rem !important; opacity: 0.8 !important; line-height: 1.4 !important; font-family: inherit !important; }
+.shelfish-container .shelfish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 2.5rem 1.5rem;
+    align-items: start;
+    margin-bottom: 2rem;
+}
 
-/* Review button — ghost variant holds row height when no link is present. */
-.shelfish-btn-wrapper { display: flex !important; justify-content: center !important; width: 100% !important; align-self: center !important; margin: 0 !important; }
-.shelfish-btn { width: 100% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.4rem !important; padding: 0.6em 1em !important; box-sizing: border-box !important; border: 1.5px dotted var(--shelfish-accent) !important; background-color: transparent !important; color: var(--shelfish-accent) !important; border-radius: 6px !important; text-decoration: none !important; font-size: 0.85rem !important; font-weight: 600 !important; transition: all 0.2s ease !important; }
-.shelfish-btn:hover { background-color: var(--shelfish-accent) !important; color: var(--shelfish-card-text) !important; text-decoration: none !important; }
-.shelfish-btn.shelfish-hidden { visibility: hidden !important; pointer-events: none !important; opacity: 0 !important; background: transparent !important; border-color: transparent !important; color: transparent !important; }
-.shelfish-btn .shelfish-arrow { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; display: inline-block !important; }
-.shelfish-btn:hover .shelfish-arrow { transform: translateX(4px) !important; }
-.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
-.shelfish-has-review .shelfish-btn { border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; }
+/* each item = card stacked above its button */
+.shelfish-container .shelfish-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
 
-/* Shown when no poster art is found via API. */
-.shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #d3d3d3 0%, #a9a9a9 100%) !important; z-index: 1 !important; }
-.shelfish-placeholder svg { width: 40% !important; height: 40% !important; fill: rgba(0,0,0,0.15) !important; }
+/* -- card --------------------------------------------------- */
+.shelfish-container .shelfish-card {
+    background: #1e2d3d !important;
+    color: #e8edf2 !important;
+    border-radius: 10px 10px 0 0;
+    padding: 0.8rem 0.8rem 1rem;
+    border: 1px solid rgba(232, 237, 242, 0.12) !important;
+    border-bottom: none !important;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
 
-@media (max-width: 480px) { .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important; gap: 2.5rem 1.25rem !important; } }
+/* card with no link gets rounded bottom corners too */
+.shelfish-container .shelfish-item:not(.shelfish-has-link) .shelfish-card {
+    border-radius: 10px !important;
+    border-bottom: 1px solid rgba(232, 237, 242, 0.12) !important;
+}
+
+/* -- thumbnail ---------------------------------------------- */
+.shelfish-container .shelfish-thumb {
+    width: 100%;
+    aspect-ratio: 2/3;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(232, 237, 242, 0.06);
+}
+
+.shelfish-container .shelfish-is-music .shelfish-thumb {
+    aspect-ratio: 1 / 1;
+}
+
+.shelfish-container .shelfish-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+}
+
+.shelfish-container .shelfish-thumb img.shelfish-loaded {
+    opacity: 1;
+}
+
+/* placeholder shown when no artwork is found */
+.shelfish-container .shelfish-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shelfish-container .shelfish-placeholder svg {
+    width: 38%;
+    height: 38%;
+    fill: rgba(232, 237, 242, 0.3);
+}
+
+/* -- metadata ----------------------------------------------- */
+.shelfish-container .shelfish-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.shelfish-container .shelfish-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    color: #e8edf2 !important;
+}
+
+.shelfish-container .shelfish-creator {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: rgba(232, 237, 242, 0.65) !important;
+}
+
+/* -- button row --------------------------------------------- */
+.shelfish-container .shelfish-btn-row {
+    display: flex;
+}
+
+.shelfish-container .shelfish-btn {
+    /* layout */
+    flex: 1;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem;
+    padding: 0.55em 1em;
+    box-sizing: border-box;
+
+    /* shape — bottom corners round to match card */
+    border-radius: 0 0 10px 10px;
+
+    /* colours: dark mode default */
+    background: rgba(232, 237, 242, 0.07) !important;
+    color: #e8edf2 !important;
+    border: 1px solid rgba(232, 237, 242, 0.2) !important;
+    border-top: none !important;
+
+    /* type */
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none !important;
+
+    /* transition — lock ALL properties so host theme can't hijack timing */
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
+}
+
+/* HOVER — plain hardcoded hex, no variables, no inheritance */
+.shelfish-container .shelfish-btn:hover {
+    background: #e8edf2 !important;
+    color: #1e2d3d !important;
+    border-color: #e8edf2 !important;
+    text-decoration: none !important;
+}
+
+/* hidden ghost button (cards with no link) */
+.shelfish-container .shelfish-btn-hidden {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+/* arrow nudge */
+.shelfish-container .shelfish-arrow {
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.shelfish-container .shelfish-btn:hover .shelfish-arrow {
+    transform: translateX(4px);
+}
+
+/* -- light mode swap ---------------------------------------- */
+@media (prefers-color-scheme: light) {
+    .shelfish-container .shelfish-card {
+        background: #e8edf2 !important;
+        color: #1e2d3d !important;
+        border-color: rgba(30, 45, 61, 0.15) !important;
+        box-shadow: 0 4px 16px rgba(30, 45, 61, 0.1);
+    }
+
+    .shelfish-container .shelfish-item:not(.shelfish-has-link) .shelfish-card {
+        border-bottom-color: rgba(30, 45, 61, 0.15) !important;
+    }
+
+    .shelfish-container .shelfish-thumb {
+        background: rgba(30, 45, 61, 0.06);
+    }
+
+    .shelfish-container .shelfish-placeholder svg {
+        fill: rgba(30, 45, 61, 0.3);
+    }
+
+    .shelfish-container .shelfish-title {
+        color: #1e2d3d !important;
+    }
+
+    .shelfish-container .shelfish-creator {
+        color: rgba(30, 45, 61, 0.6) !important;
+    }
+
+    .shelfish-container .shelfish-btn {
+        background: rgba(30, 45, 61, 0.05) !important;
+        color: #1e2d3d !important;
+        border-color: rgba(30, 45, 61, 0.2) !important;
+    }
+
+    .shelfish-container .shelfish-btn:hover {
+        background: #1e2d3d !important;
+        color: #e8edf2 !important;
+        border-color: #1e2d3d !important;
+    }
+}
+
+/* -- responsive --------------------------------------------- */
+@media (max-width: 500px) {
+    .shelfish-container .shelfish-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 2rem 1rem;
+    }
+}
