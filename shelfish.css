@@ -1,7 +1,13 @@
-/* shelfish — fixed dark card design, all classes exposed for user overrides */
+/* shelfish — fixed design, os-aware light/dark swap, all classes exposed for user overrides */
 
 /* layout */
-.shelfish-container { margin: 2rem 0; clear: both; }
+.shelfish-container {
+    margin: 2rem 0;
+    clear: both;
+    color-scheme: light dark;
+    --sf-bg: light-dark(#e8edf2, #1e2d3d);
+    --sf-fg: light-dark(#1e2d3d, #e8edf2);
+}
 
 .shelfish-grid {
     display: grid;
@@ -21,17 +27,17 @@
 
 /* card */
 .shelfish-card {
-    background: #1e2d3d !important;
-    color: #e8edf2 !important;
+    background: var(--sf-bg) !important;
+    color: var(--sf-fg) !important;
     border-radius: 10px;
     padding: 0.8rem 0.8rem 1.1rem;
-    border: 1px solid rgba(232, 237, 242, 0.12) !important;
+    border: 1px solid color-mix(in srgb, var(--sf-fg) 15%, transparent) !important;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
     flex: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* thumbnail */
@@ -70,9 +76,9 @@
     gap: 0.4rem;
     padding: 0.6em 1em;
     box-sizing: border-box;
-    border: 1.5px dotted rgba(232, 237, 242, 0.5) !important;
+    border: 1.5px dotted color-mix(in srgb, var(--sf-fg) 55%, transparent) !important;
     background: transparent !important;
-    color: #e8edf2 !important;
+    color: var(--sf-fg) !important;
     border-radius: 6px;
     text-decoration: none !important;
     font-size: 0.85rem;
@@ -80,9 +86,9 @@
     transition: all 0.2s ease !important;
 }
 .shelfish-btn:hover {
-    background: #e8edf2 !important;
-    color: #1e2d3d !important;
-    border-color: #e8edf2 !important;
+    background: var(--sf-fg) !important;
+    color: var(--sf-bg) !important;
+    border-color: var(--sf-fg) !important;
     text-decoration: none !important;
 }
 .shelfish-btn.shelfish-hidden { visibility: hidden; pointer-events: none; opacity: 0; }
@@ -100,10 +106,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.06);
+    background: color-mix(in srgb, var(--sf-fg) 8%, transparent);
     z-index: 1;
 }
-.shelfish-placeholder svg { width: 40%; height: 40%; fill: rgba(232, 237, 242, 0.25); }
+.shelfish-placeholder svg { width: 40%; height: 40%; fill: color-mix(in srgb, var(--sf-fg) 25%, transparent); }
 
 @media (max-width: 480px) {
     .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2.5rem 1.25rem; }
