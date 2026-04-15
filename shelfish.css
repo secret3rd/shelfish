@@ -1,16 +1,20 @@
 /* ============================================================
-   shelfish.css
-   Fixed two-tone palette. Dark mode base; light mode swapped
-   via media query. No CSS variables used for color — pure hex
-   with .shelfish-container prefix for specificity everywhere.
+   shelfish.css — v2 rebuild
+   
+   Card:   fixed dark navy palette (light/dark via @media)
+   Button: adaptive via currentColor + Canvas fallback,
+           enhanced with contrast-color() where supported.
+   
+   All .shelfish-container prefixed for specificity.
+   font-size fixed at 16px baseline; font-family inherits.
    ============================================================ */
 
 /* -- layout ------------------------------------------------- */
 .shelfish-container {
     margin: 2rem 0;
     clear: both;
-    font-size: 16px; /* explicit baseline — don't inherit host theme's font size */
-    /* font-family intentionally not set — inherits from the host theme */
+    font-size: 16px;
+    /* font-family intentionally unset — inherits from host theme */
 }
 
 .shelfish-container .shelfish-grid {
@@ -21,15 +25,14 @@
     margin-bottom: 2rem;
 }
 
-/* each item = card stacked above its button with a small gap */
+/* item: card + button stacked with a gap */
 .shelfish-container .shelfish-item {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.4rem;
 }
 
-/* -- card --------------------------------------------------- */
-/* card — all corners rounded since button is separated by a gap */
+/* -- card (fixed palette) ----------------------------------- */
 .shelfish-container .shelfish-card {
     background: #1e2d3d !important;
     color: #e8edf2 !important;
@@ -43,11 +46,6 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* card with no link keeps the same look */
-.shelfish-container .shelfish-item:not(.shelfish-has-link) .shelfish-card {
-    border-radius: 10px !important;
-}
-
 /* -- thumbnail ---------------------------------------------- */
 .shelfish-container .shelfish-thumb {
     width: 100%;
@@ -58,11 +56,7 @@
     flex-shrink: 0;
     background: rgba(232, 237, 242, 0.06);
 }
-
-.shelfish-container .shelfish-is-music .shelfish-thumb {
-    aspect-ratio: 1 / 1;
-}
-
+.shelfish-container .shelfish-is-music .shelfish-thumb { aspect-ratio: 1 / 1; }
 .shelfish-container .shelfish-thumb img {
     width: 100%;
     height: 100%;
@@ -71,12 +65,8 @@
     opacity: 0;
     transition: opacity 0.7s ease;
 }
+.shelfish-container .shelfish-thumb img.shelfish-loaded { opacity: 1; }
 
-.shelfish-container .shelfish-thumb img.shelfish-loaded {
-    opacity: 1;
-}
-
-/* placeholder shown when no artwork is found */
 .shelfish-container .shelfish-placeholder {
     position: absolute;
     inset: 0;
@@ -84,7 +74,6 @@
     align-items: center;
     justify-content: center;
 }
-
 .shelfish-container .shelfish-placeholder svg {
     width: 38%;
     height: 38%;
@@ -92,12 +81,7 @@
 }
 
 /* -- metadata ----------------------------------------------- */
-.shelfish-container .shelfish-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
+.shelfish-container .shelfish-meta { display: flex; flex-direction: column; gap: 0.25rem; }
 .shelfish-container .shelfish-title {
     font-size: 0.9rem;
     font-weight: 700;
@@ -105,71 +89,76 @@
     margin: 0;
     color: #e8edf2 !important;
 }
-
 .shelfish-container .shelfish-creator {
     font-size: 0.78rem;
     line-height: 1.4;
     color: rgba(232, 237, 242, 0.65) !important;
 }
 
-/* -- button row --------------------------------------------- */
-.shelfish-container .shelfish-btn-row {
-    display: flex;
-}
+/* -- button ------------------------------------------------- */
+.shelfish-container .shelfish-btn-row { display: flex; }
 
 .shelfish-container .shelfish-btn {
-    /* layout */
     flex: 1;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.35rem;
     padding: 0.55em 1em;
     box-sizing: border-box;
 
-    /* shape — fully rounded since gap separates it from the card */
-    border-radius: 8px;
+    /* flat top, rounded bottom — sits below the card gap */
+    border-radius: 0 0 8px 8px;
 
-    /* colours: dark mode default */
+    /* BASE adaptive colours: use host text color as accent */
     background: transparent !important;
-    color: #e8edf2 !important;
-    border: 1.5px dotted rgba(232, 237, 242, 0.45) !important;
+    color: currentColor !important;
+    border: 1.5px dotted color-mix(in srgb, currentColor 45%, transparent) !important;
 
-    /* type */
     font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none !important;
-
-    /* transition — lock ALL properties so host theme can't hijack timing */
     transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
 }
 
-/* HOVER — plain hardcoded hex, no variables, no inheritance */
+/* BASE hover: fill with currentColor, text goes to OS bg (Canvas) */
 .shelfish-container .shelfish-btn:hover {
-    background: #e8edf2 !important;
-    color: #1e2d3d !important;
-    border-color: #e8edf2 !important;
+    background: currentColor !important;
+    color: Canvas !important;
+    border-color: currentColor !important;
     text-decoration: none !important;
 }
 
-/* hidden ghost button (cards with no link) */
+/* ENHANCEMENT: true mathematical contrast when contrast-color() is supported */
+@supports (color: contrast-color(red)) {
+    .shelfish-container .shelfish-btn:hover {
+        color: contrast-color(currentColor) !important;
+    }
+}
+
+/* button text inner span — keeps label+arrow as one inline unit */
+.shelfish-container .shelfish-btn-text {
+    display: inline;
+}
+
+/* ghost button for cards with no link */
 .shelfish-container .shelfish-btn-hidden {
     visibility: hidden !important;
     pointer-events: none !important;
     opacity: 0 !important;
 }
 
-/* arrow nudge */
+/* arrow sits immediately after the last letter */
 .shelfish-container .shelfish-arrow {
     display: inline-block;
+    margin-left: 0.15em;
     transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
+.shelfish-container .shelfish-btn:hover .shelfish-arrow { transform: translateX(4px); }
 
-.shelfish-container .shelfish-btn:hover .shelfish-arrow {
-    transform: translateX(4px);
-}
+/* flatten card radius where card+button are visually connected */
+.shelfish-container .shelfish-has-link .shelfish-card { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
 
-/* -- light mode swap ---------------------------------------- */
+/* -- light mode card swap ----------------------------------- */
 @media (prefers-color-scheme: light) {
     .shelfish-container .shelfish-card {
         background: #e8edf2 !important;
@@ -177,38 +166,10 @@
         border-color: rgba(30, 45, 61, 0.15) !important;
         box-shadow: 0 4px 16px rgba(30, 45, 61, 0.1);
     }
-
-    .shelfish-container .shelfish-item:not(.shelfish-has-link) .shelfish-card {
-        border-bottom-color: rgba(30, 45, 61, 0.15) !important;
-    }
-
-    .shelfish-container .shelfish-thumb {
-        background: rgba(30, 45, 61, 0.06);
-    }
-
-    .shelfish-container .shelfish-placeholder svg {
-        fill: rgba(30, 45, 61, 0.3);
-    }
-
-    .shelfish-container .shelfish-title {
-        color: #1e2d3d !important;
-    }
-
-    .shelfish-container .shelfish-creator {
-        color: rgba(30, 45, 61, 0.6) !important;
-    }
-
-    .shelfish-container .shelfish-btn {
-        background: transparent !important;
-        color: #1e2d3d !important;
-        border-color: rgba(30, 45, 61, 0.4) !important;
-    }
-
-    .shelfish-container .shelfish-btn:hover {
-        background: #1e2d3d !important;
-        color: #e8edf2 !important;
-        border-color: #1e2d3d !important;
-    }
+    .shelfish-container .shelfish-thumb { background: rgba(30, 45, 61, 0.06); }
+    .shelfish-container .shelfish-placeholder svg { fill: rgba(30, 45, 61, 0.3); }
+    .shelfish-container .shelfish-title { color: #1e2d3d !important; }
+    .shelfish-container .shelfish-creator { color: rgba(30, 45, 61, 0.6) !important; }
 }
 
 /* -- responsive --------------------------------------------- */

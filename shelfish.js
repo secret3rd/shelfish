@@ -110,8 +110,8 @@ class Shelfish {
     render(i) {
         const hasLink = i.link ? 'shelfish-has-link' : '';
         const btn = i.link
-            ? `<a href="${i.link}" class="shelfish-btn">${i.label} <span class="shelfish-arrow" aria-hidden="true">→</span></a>`
-            : `<div class="shelfish-btn shelfish-btn-hidden" aria-hidden="true">${i.label} <span class="shelfish-arrow">→</span></div>`;
+            ? `<a href="${i.link}" class="shelfish-btn"><span class="shelfish-btn-text">${i.label} <span class="shelfish-arrow" aria-hidden="true">→</span></span></a>`
+            : `<div class="shelfish-btn shelfish-btn-hidden" aria-hidden="true"><span class="shelfish-btn-text">${i.label} <span class="shelfish-arrow">→</span></span></div>`;
 
         return `
             <div class="shelfish-item ${hasLink}">
