@@ -1,6 +1,6 @@
 /**
- * shelfish.js: ultra-lightweight 3-lane masonry.
- * fixed 3-lane distribution with strict link parsing.
+ * shelfish.js: featherweight responsive masonry.
+ * re-lanes items for 3-col (desktop), 2-col (tablet), and 1-col (mobile) viewports.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -33,18 +33,30 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        // fixed 3-lane distribution
-        const lanes = [[], [], []];
-        items.forEach((item, idx) => {
-            lanes[idx % 3].push(this.render(item, idx));
-        });
-
-        const laneHTML = lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('');
         const container = document.createElement('div');
         container.className = 'shelfish-container';
-        container.innerHTML = `<div class="shelfish-grid">${laneHTML}</div>`;
+        container._items = items;
         ul.replaceWith(container);
 
+        // tiny observer for responsive re-laning
+        const ro = new ResizeObserver(() => this.layout(container));
+        ro.observe(container);
+    }
+
+    layout(container) {
+        const width = container.offsetWidth;
+        if (width === 0) return;
+        
+        // responsive thresholds: 700px (desktop), 450px (tablet)
+        const cols = width > 700 ? 3 : (width > 450 ? 2 : 1);
+        if (container._currentCols === cols) return;
+        container._currentCols = cols;
+
+        const items = container._items;
+        const lanes = Array.from({ length: cols }, () => []);
+        items.forEach((item, idx) => lanes[idx % cols].push(this.render(item, idx)));
+
+        container.innerHTML = `<div class="shelfish-grid">${lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('')}</div>`;
         container.querySelectorAll('.shelfish-item-wrapper').forEach(wrapper => {
             wrapper._shelfishItem = items.find(i => i.id === wrapper.dataset.id);
             this.shelfish_lazy.observe(wrapper);
@@ -58,10 +70,8 @@ class Shelfish {
         const tag = tpTit.match(/\[(.*?)\]/i);
         if (!tag || !cr || cr === '#') return null;
         
-        // strict link check: must exist and not be empty/whitespace
         const rawLk = parts[2];
         const lk = (rawLk && rawLk !== '#' && rawLk.trim().length > 0) ? rawLk.trim() : null;
-        
         const label = (lk && parts[3] && parts[3] !== '#') ? parts[3] : 'Read review';
         const bType = tag[1].trim().toLowerCase();
         let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
@@ -77,11 +87,8 @@ class Shelfish {
     }
 
     render(i, idx) {
-        // double-check link truthiness to prevent ghost buttons
-        const hasRev = (i.link && i.link.length > 0) ? 'shelfish-has-review' : '';
-        const linkHTML = hasRev
-            ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
-            : '';
+        const hasRev = i.link ? 'shelfish-has-review' : '';
+        const linkHTML = hasRev ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>` : '';
         return `
             <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${idx}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
@@ -107,8 +114,7 @@ class Shelfish {
             img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; };
             return;
         }
-        this.queue.push(wrapper);
-        this.processQueue();
+        this.queue.push(wrapper); this.processQueue();
     }
 
     async processQueue() {
@@ -122,12 +128,8 @@ class Shelfish {
             const img = wrapper.querySelector('img');
             try {
                 const url = i.img || await this.fetchAPI(i);
-                if (url) { 
-                    localStorage.setItem(`shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_'), url); 
-                    img.src = url; 
-                } else { 
-                    wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; 
-                }
+                if (url) { localStorage.setItem(`shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_'), url); img.src = url; }
+                else { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
             } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
             await new Promise(r => setTimeout(r, 250));
         }
@@ -137,8 +139,7 @@ class Shelfish {
     async fetchAPI({ type, title, author }) {
         const isVid = ['Movie', 'TV'].includes(type);
         const q = encodeURIComponent(title + (isVid ? '' : ' ' + author));
-        const url = isVid ? `https://api.themoviedb.org/3/search/${type === 'Movie' ? 'movie' : 'tv'}?api_key=${this.key}&query=${q}`
-                          : `https://itunes.apple.com/search?term=${q}&media=${type === 'Music' ? 'music' : 'ebook'}&limit=1`;
+        const url = isVid ? `https://api.themoviedb.org/3/search/${type === 'Movie' ? 'movie' : 'tv'}?api_key=${this.key}&query=${q}` : `https://itunes.apple.com/search?term=${q}&media=${type === 'Music' ? 'music' : 'ebook'}&limit=1`;
         try {
             const res = await (await fetch(url)).json();
             const hit = res.results && res.results.length > 0 ? res.results[0] : null;
