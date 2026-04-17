@@ -46,7 +46,7 @@ This is lightweight but will still bring down your load speed by a few milliseco
 
 ### Deployment Code
 
-Paste this at the top of the page where you want the shelves to appear:
+For the fastest page load times (and best Google PageSpeed scores), paste the CSS in your `<head>` and the script tag at the bottom of your `<body>` (or in a footer injection if Bear Blog supports it).
 
 ```html
 <head>
@@ -54,13 +54,12 @@ Paste this at the top of the page where you want the shelves to appear:
 /* Paste full source from shelfish.css here if you want total independence */
 @import url('https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.css');
 </style>
-
-<script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js"></script>
 </head>
 
-Some body content
+... Your page content ...
 
-Followed by the markdown lists which will be translated on load
+<!-- Place scripts right before closing body or in your footer injection -->
+<script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js"></script>
 ```
 
 ---

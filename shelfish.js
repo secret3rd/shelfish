@@ -10,16 +10,10 @@ class Shelfish {
             'TV': `📺`,
             'Music': `🎵`
         };
-        this.setupLazyLoader();
         this.scan();
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
     }
 
-    setupLazyLoader() {
-        this.shelfish_lazy = new IntersectionObserver(es => es.forEach(e => {
-            if (e.isIntersecting) { this.loadArt(e.target); this.shelfish_lazy.unobserve(e.target); }
-        }), { rootMargin: '300px' });
-    }
 
     scan() {
         /* Scans for the trigger emoji anywhere in the first item's content to ensure detection regardless of formatting. */
@@ -36,7 +30,7 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        let html = `<div class="shelfish-grid">${items.map(i => this.render(i)).join('')}</div>`;
+        let html = `<div class="shelfish-grid">${items.map((i, index) => this.render(i, index)).join('')}</div>`;
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
@@ -45,7 +39,7 @@ class Shelfish {
 
         container.querySelectorAll('.shelfish-card').forEach(c => {
             c._shelfishItem = items.find(i => i.id === c.id);
-            this.shelfish_lazy.observe(c);
+            this.loadArt(c);
         });
     }
 
@@ -74,13 +68,14 @@ class Shelfish {
         };
     }
 
-    render(i) {
+    render(i, index) {
         /* shelfish-has-review flattens the shared border between card and button when a link exists. */
         const hasRev = i.link ? 'shelfish-has-review' : '';
+        const lazyAttr = index >= 4 ? ' loading="lazy"' : '';
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : `<div class="shelfish-btn-wrapper"><div class="superbutton-link superbutton-rounded shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
+        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img${lazyAttr} onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
     }
 
     async loadArt(card) {
