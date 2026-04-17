@@ -1,6 +1,6 @@
 /**
  * shelfish.js: ultra-lightweight 3-lane masonry.
- * fixed 3-lane distribution for a consistent desktop grid.
+ * fixed 3-lane distribution with strict link parsing.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -33,7 +33,7 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        // fixed 3-lane distribution for consistent desktop masonry
+        // fixed 3-lane distribution
         const lanes = [[], [], []];
         items.forEach((item, idx) => {
             lanes[idx % 3].push(this.render(item, idx));
@@ -53,11 +53,15 @@ class Shelfish {
 
     parse(rawLine) {
         const parts = rawLine.split('|').map(s => s.trim());
-        if (parts.length < 2 || parts.length > 4) return null;
+        if (parts.length < 2) return null;
         const [tpTit, cr] = parts;
         const tag = tpTit.match(/\[(.*?)\]/i);
         if (!tag || !cr || cr === '#') return null;
-        const lk = parts[2] && parts[2] !== '#' ? parts[2] : null;
+        
+        // strict link check: must exist and not be empty/whitespace
+        const rawLk = parts[2];
+        const lk = (rawLk && rawLk !== '#' && rawLk.trim().length > 0) ? rawLk.trim() : null;
+        
         const label = (lk && parts[3] && parts[3] !== '#') ? parts[3] : 'Read review';
         const bType = tag[1].trim().toLowerCase();
         let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
@@ -73,8 +77,9 @@ class Shelfish {
     }
 
     render(i, idx) {
-        const hasRev = i.link ? 'shelfish-has-review' : '';
-        const linkHTML = i.link
+        // double-check link truthiness to prevent ghost buttons
+        const hasRev = (i.link && i.link.length > 0) ? 'shelfish-has-review' : '';
+        const linkHTML = hasRev
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : '';
         return `
