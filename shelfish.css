@@ -2,7 +2,7 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 
-/* reactive masonry lanes: unified column system controlled by js */
+/* lightweight 2-lane masonry: packs vertically to eliminate gaps */
 .shelfish-grid { 
     display: flex !important;
     gap: 1rem !important;
@@ -58,7 +58,7 @@
 }
 .shelfish-thumb img.shelfish-loaded { opacity: 1 !important; }
 
-/* typography logic */
+/* typography logic from your refinements */
 .shelfish-info { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; color: inherit !important; }
 .shelfish-title { 
     font-size: 1rem !important; 
@@ -99,3 +99,8 @@
 
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
+
+/* standard mobile stack */
+@media (max-width: 480px) {
+    .shelfish-grid { flex-direction: column !important; }
+}

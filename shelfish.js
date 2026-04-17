@@ -1,5 +1,6 @@
 /**
- * auto-fetch media covers for bear blog with reactive-lanes masonry.
+ * shelfish.js: ultra-lightweight media shelves for bear blog.
+ * zero observers, zero width-checks. fixed 2-lane masonry.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -32,34 +33,17 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        const container = document.createElement('div');
-        container.className = 'shelfish-container';
-        container._items = items;
-        ul.replaceWith(container);
-
-        // reactive observer handles all responsiveness via re-balancing
-        const ro = new ResizeObserver(() => this.layout(container));
-        ro.observe(container);
-    }
-
-    layout(container) {
-        const width = container.offsetWidth;
-        if (width === 0) return;
-        
-        // thresholds: 3 lanes above 450px, 2 lanes above 250px
-        const cols = width > 450 ? 3 : (width > 250 ? 2 : 1);
-        if (container._currentCols === cols) return;
-        container._currentCols = cols;
-
-        const items = container._items;
-        const lanes = Array.from({ length: cols }, () => []);
-        
+        // fixed 2-lane distribution for lightweight masonry packing
+        const lanes = [[], []];
         items.forEach((item, idx) => {
-            lanes[idx % cols].push(this.render(item, idx));
+            lanes[idx % 2].push(this.render(item, idx));
         });
 
         const laneHTML = lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('');
-        container.innerHTML = `<div class="shelfish-grid" data-cols="${cols}">${laneHTML}</div>`;
+        const container = document.createElement('div');
+        container.className = 'shelfish-container';
+        container.innerHTML = `<div class="shelfish-grid">${laneHTML}</div>`;
+        ul.replaceWith(container);
 
         container.querySelectorAll('.shelfish-item-wrapper').forEach(wrapper => {
             wrapper._shelfishItem = items.find(i => i.id === wrapper.dataset.id);
