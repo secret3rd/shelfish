@@ -20,7 +20,7 @@ class Shelfish {
     setupLazyLoader() {
         this.shelfish_lazy = new IntersectionObserver(es => es.forEach(e => {
             if (e.isIntersecting) { this.loadArt(e.target); this.shelfish_lazy.unobserve(e.target); }
-        }), { rootMargin: '800px' });
+        }), { rootMargin: '400px' });
     }
 
 
@@ -39,20 +39,16 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        let html = `<div class="shelfish-grid">${items.map((i, index) => this.render(i, index)).join('')}</div>`;
+        let html = `<div class="shelfish-grid">${items.map(i => this.render(i)).join('')}</div>`;
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
         container.innerHTML = html;
         ul.replaceWith(container);
 
-        container.querySelectorAll('.shelfish-card').forEach((c, index) => {
+        container.querySelectorAll('.shelfish-card').forEach(c => {
             c._shelfishItem = items.find(i => i.id === c.id);
-            if (index < 4) {
-               this.loadArt(c);
-            } else {
-               this.shelfish_lazy.observe(c);
-            }
+            this.shelfish_lazy.observe(c);
         });
     }
 
@@ -81,18 +77,36 @@ class Shelfish {
         };
     }
 
-    render(i, index) {
+    render(i) {
         /* shelfish-has-review flattens the shared border between card and button when a link exists. */
         const hasRev = i.link ? 'shelfish-has-review' : '';
-        const lazyAttr = index >= 4 ? ' loading="lazy"' : '';
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : `<div class="shelfish-btn-wrapper"><div class="superbutton-link superbutton-rounded shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img${lazyAttr} onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
+        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
     }
 
     async loadArt(card) {
         if (card.dataset.shelfishProcessed) return;
+
+        const i = card._shelfishItem;
+        const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
+        const cachedUrl = localStorage.getItem(cacheKey);
+
+        if (cachedUrl) {
+            card.dataset.shelfishProcessed = "true";
+            const img = card.querySelector('img');
+            const injectPlaceholder = () => {
+                const thumb = card.querySelector('.shelfish-thumb');
+                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
+            };
+            if (cachedUrl !== 'null') {
+                img.src = cachedUrl;
+                img.onerror = injectPlaceholder;
+            } else { injectPlaceholder(); }
+            return;
+        }
+
         this.queue.push(card);
         this.processQueue();
     }
@@ -108,6 +122,7 @@ class Shelfish {
 
             const i = card._shelfishItem;
             const img = card.querySelector('img');
+            const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
             const injectPlaceholder = () => {
                 const thumb = card.querySelector('.shelfish-thumb');
                 if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
@@ -115,14 +130,18 @@ class Shelfish {
 
             try {
                 const url = i.img || await this.fetchAPI(i);
+                localStorage.setItem(cacheKey, url || 'null');
                 if (url) {
                     img.src = url;
                     img.onerror = injectPlaceholder;
                 } else { injectPlaceholder(); }
-            } catch (e) { injectPlaceholder(); }
+            } catch (e) { 
+                localStorage.setItem(cacheKey, 'null');
+                injectPlaceholder(); 
+            }
 
-            // Throttling: wait 300ms before next request to stay under iTunes/TMDB rate limits
-            await new Promise(r => setTimeout(r, 300));
+            // Throttling: wait 250ms before next request to stay under iTunes/TMDB rate limits
+            await new Promise(r => setTimeout(r, 250));
         }
 
         this.isProcessing = false;
