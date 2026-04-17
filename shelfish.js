@@ -1,6 +1,5 @@
 /**
  * auto-fetch media covers for bear blog with reactive-lanes masonry.
- * preserves horizontal order while ensuring zero vertical gaps.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -38,7 +37,7 @@ class Shelfish {
         container._items = items;
         ul.replaceWith(container);
 
-        // reactive observer for real-time lane re-balancing
+        // reactive observer handles all responsiveness via re-balancing
         const ro = new ResizeObserver(() => this.layout(container));
         ro.observe(container);
     }
@@ -47,15 +46,14 @@ class Shelfish {
         const width = container.offsetWidth;
         if (width === 0) return;
         
-        // threshold for responsive lanes
-        const cols = width > 500 ? 3 : (width > 350 ? 2 : 1);
+        // thresholds: 3 lanes above 450px, 2 lanes above 250px
+        const cols = width > 450 ? 3 : (width > 250 ? 2 : 1);
         if (container._currentCols === cols) return;
         container._currentCols = cols;
 
         const items = container._items;
         const lanes = Array.from({ length: cols }, () => []);
         
-        // distribute items across top-down lanes to maintain horizontal sequence
         items.forEach((item, idx) => {
             lanes[idx % cols].push(this.render(item, idx));
         });

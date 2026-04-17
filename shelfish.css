@@ -2,7 +2,7 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 
-/* reactive masonry lanes: pack vertically to eliminate all gaps */
+/* reactive masonry lanes: unified column system controlled by js */
 .shelfish-grid { 
     display: flex !important;
     gap: 1rem !important;
@@ -14,7 +14,7 @@
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 1.2rem !important; /* vertical displacement (your 2 red bars) */
+    gap: 1.2rem !important;
 }
 
 /* unified container style — zero gap between card and its button */
@@ -58,7 +58,7 @@
 }
 .shelfish-thumb img.shelfish-loaded { opacity: 1 !important; }
 
-/* typography polish from your last request */
+/* typography logic */
 .shelfish-info { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; color: inherit !important; }
 .shelfish-title { 
     font-size: 1rem !important; 
@@ -89,7 +89,7 @@
 }
 .shelfish-btn:hover { background-color: color-mix(in srgb, currentColor, transparent 90%) !important; border-color: color-mix(in srgb, currentColor, transparent 60%) !important; }
 
-/* arrow animation from your last request */
+/* arrow animation */
 .shelfish-btn .shelfish-arrow { 
     display: inline-block !important; 
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; 
