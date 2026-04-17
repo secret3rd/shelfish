@@ -2,10 +2,10 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 
-/* desktop: flexible flex lanes for gap-filling sectioning */
+/* desktop: flexible flex lanes for gap-filling masonry */
 .shelfish-grid { 
     display: flex !important;
-    gap: 1rem !important; /* horizontal gap */
+    gap: 1rem !important;
     width: 100% !important;
     align-items: flex-start !important;
 }
@@ -14,7 +14,7 @@
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 1.2rem !important; /* increased vertical gap as requested */
+    gap: 1.2rem !important;
 }
 
 /* unified container style — zero gap between card and its button */
@@ -46,7 +46,7 @@
 .shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 4px !important; position: relative !important; overflow: hidden !important; background: color-mix(in srgb, currentColor, transparent 88%) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1 !important; }
 
-/* overwrite any parent theme image rounding with high priority */
+/* image rounding overwrite */
 .shelfish-thumb img { 
     width: 100% !important; 
     height: 100% !important; 
@@ -61,9 +61,9 @@
 /* typography logic */
 .shelfish-info { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; color: inherit !important; }
 .shelfish-title { 
-    font-size: 1rem !important; /* reduced from 1.1rem */
-    font-weight: 500 !important; /* reduced from 600 */
-    line-height: 1.4 !important; /* increased slightly */
+    font-size: 1rem !important; 
+    font-weight: 500 !important; 
+    line-height: 1.4 !important; 
     letter-spacing: -0.01em !important; 
     margin: 0 !important;
 }
@@ -72,15 +72,11 @@
     font-size: 0.8rem !important; 
     opacity: 0.8 !important; 
     line-height: 1.4 !important;
-    font-style: normal !important; /* removed italics */
+    font-style: normal !important;
 }
 
-/* visual join for review buttons */
-.shelfish-has-review .shelfish-card { 
-    border-bottom-left-radius: 0 !important; 
-    border-bottom-right-radius: 0 !important; 
-    border-bottom: none !important;
-}
+/* seamless review join */
+.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom: none !important; }
 
 .shelfish-btn-wrapper { margin: 0 !important; display: block !important; width: 100% !important; color: inherit !important; }
 .shelfish-btn { 
@@ -88,8 +84,7 @@
     border: 1px solid color-mix(in srgb, currentColor, transparent 80%) !important; 
     background-color: transparent !important; color: inherit !important; 
     border-radius: 6px !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;
-    text-decoration: none !important; font-size: 0.9rem !important; 
-    font-weight: 500 !important; /* reduced from 600 to match title */
+    text-decoration: none !important; font-size: 0.9rem !important; font-weight: 500 !important;
     transition: all 0.2s ease !important; text-align: left !important; 
 }
 .shelfish-btn:hover { background-color: color-mix(in srgb, currentColor, transparent 90%) !important; border-color: color-mix(in srgb, currentColor, transparent 60%) !important; }
@@ -104,18 +99,15 @@
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
     .shelfish-grid { 
         display: grid !important; 
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 1rem !important;
     }
-    .shelfish-lane { 
-        display: contents !important; 
-        gap: 1.2rem !important;
-    }
+    .shelfish-lane { display: contents !important; }
 }
 
-@media (max-width: 480px) { 
+@media (max-width: 350px) { 
     .shelfish-grid { grid-template-columns: 1fr !important; }
 }
