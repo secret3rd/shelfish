@@ -15,7 +15,6 @@ class Shelfish {
         this.setupLazyLoader();
         this.scan();
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
-        window.addEventListener('resize', () => this.resizeAll());
     }
 
     setupLazyLoader() {
@@ -45,13 +44,10 @@ class Shelfish {
         container.innerHTML = html;
         ul.replaceWith(container);
 
-        container.querySelectorAll('.shelfish-item-wrapper').forEach(c => {
-            c._shelfishItem = items.find(i => i.id === c.dataset.itemId);
+        container.querySelectorAll('.shelfish-card').forEach(c => {
+            c._shelfishItem = items.find(i => i.id === c.id);
             this.shelfish_lazy.observe(c);
         });
-        
-        // Initial layout pass
-        setTimeout(() => this.resizeAll(), 100);
     }
 
     parse(rawLine) {
@@ -80,49 +76,27 @@ class Shelfish {
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : `<div class="shelfish-btn-wrapper"><div class="superbutton-link superbutton-rounded shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        return `<div class="shelfish-item-wrapper ${hasRev}" data-item-id="${i.id}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="window.ShelfishInstance.resizeRow('${i.id}'); this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
+        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
     }
 
-    resizeRow(id) {
-        const card = document.getElementById(id);
-        if (!card) return;
-        const wrapper = card.closest('.shelfish-item-wrapper');
-        if (!wrapper) return;
-        const height = wrapper.getBoundingClientRect().height;
-        wrapper.style.gridRowEnd = `span ${Math.ceil(height)}`;
-    }
-
-    resizeAll() {
-        document.querySelectorAll('.shelfish-item-wrapper').forEach(w => {
-            const height = w.getBoundingClientRect().height;
-            w.style.gridRowEnd = `span ${Math.ceil(height)}`;
-        });
-    }
-
-    async loadArt(wrapper) {
-        if (wrapper.dataset.shelfishProcessed) return;
-        const card = wrapper.querySelector('.shelfish-card');
+    async loadArt(card) {
+        if (card.dataset.shelfishProcessed) return;
         const i = card._shelfishItem;
         const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
         let cachedUrl = localStorage.getItem(cacheKey);
         if (cachedUrl === 'null') { localStorage.removeItem(cacheKey); cachedUrl = null; }
-
         if (cachedUrl) {
-            wrapper.dataset.shelfishProcessed = "true";
+            card.dataset.shelfishProcessed = "true";
             const img = card.querySelector('img');
             const injectPlaceholder = () => {
                 const thumb = card.querySelector('.shelfish-thumb');
-                if (thumb) {
-                    thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
-                    this.resizeRow(i.id);
-                }
+                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
             };
             img.src = cachedUrl;
             img.onerror = injectPlaceholder;
             return;
         }
-
-        this.queue.push(wrapper);
+        this.queue.push(card);
         this.processQueue();
     }
 
@@ -130,19 +104,15 @@ class Shelfish {
         if (this.isProcessing || this.queue.length === 0) return;
         this.isProcessing = true;
         while (this.queue.length > 0) {
-            const wrapper = this.queue.shift();
-            if (wrapper.dataset.shelfishProcessed) continue;
-            wrapper.dataset.shelfishProcessed = "true";
-            const card = wrapper.querySelector('.shelfish-card');
+            const card = this.queue.shift();
+            if (card.dataset.shelfishProcessed) continue;
+            card.dataset.shelfishProcessed = "true";
             const i = card._shelfishItem;
             const img = card.querySelector('img');
             const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
             const injectPlaceholder = () => {
                 const thumb = card.querySelector('.shelfish-thumb');
-                if (thumb) {
-                    thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
-                    this.resizeRow(i.id);
-                }
+                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
             };
             try {
                 const url = i.img || await this.fetchAPI(i);
