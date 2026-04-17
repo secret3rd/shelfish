@@ -47,7 +47,7 @@ class Shelfish {
 
         // determine column count based on container width for proper sectioning
         const width = ul.parentElement ? ul.parentElement.offsetWidth : window.innerWidth;
-        const colCount = width > 600 ? 3 : (width > 350 ? 2 : 1);
+        const colCount = width > 500 ? 3 : (width > 300 ? 2 : 1);
 
         // distribute into lanes that actually fit to avoid massive gaps on wrap
         const lanes = Array.from({ length: colCount }, () => []);

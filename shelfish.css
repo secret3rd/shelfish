@@ -99,7 +99,7 @@
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
 
-@media (max-width: 600px) {
+@media (max-width: 500px) {
     .shelfish-grid { 
         display: grid !important; 
         grid-template-columns: repeat(2, 1fr) !important;
@@ -108,6 +108,6 @@
     .shelfish-lane { display: contents !important; }
 }
 
-@media (max-width: 350px) { 
+@media (max-width: 300px) { 
     .shelfish-grid { grid-template-columns: 1fr !important; }
 }
