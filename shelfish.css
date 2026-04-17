@@ -2,27 +2,31 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 
-/* pro masonry grid: uses 1px rows for infinite vertical precision */
+/* reactive masonry lanes: pack vertically to eliminate all gaps */
 .shelfish-grid { 
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)) !important; 
-    grid-auto-rows: 1px !important;
-    gap: 0 1rem !important; /* horizontal gap only; vertical handled by span */
+    display: flex !important;
+    gap: 1rem !important;
     width: 100% !important;
     align-items: flex-start !important;
 }
 
-/* items ignore lanes entirely */
+.shelfish-lane {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.2rem !important; /* vertical displacement (your 2 red bars) */
+}
+
+/* unified container style — zero gap between card and its button */
 .shelfish-item-wrapper { 
+    width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
     color: inherit !important;
-    align-self: flex-start !important;
     overflow-wrap: break-word !important; 
     word-break: break-word !important;
     hyphens: auto !important;
-    margin-bottom: 0 !important; /* gap handled by grid span */
 }
 
 .shelfish-card { 
@@ -42,7 +46,7 @@
 .shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 4px !important; position: relative !important; overflow: hidden !important; background: color-mix(in srgb, currentColor, transparent 88%) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1 !important; }
 
-/* image rounding overwrite */
+/* image rounding overwrite (parent theme fallback) */
 .shelfish-thumb img { 
     width: 100% !important; 
     height: 100% !important; 
@@ -54,7 +58,7 @@
 }
 .shelfish-thumb img.shelfish-loaded { opacity: 1 !important; }
 
-/* typography logic */
+/* typography polish from your last request */
 .shelfish-info { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; color: inherit !important; }
 .shelfish-title { 
     font-size: 1rem !important; 
@@ -85,6 +89,7 @@
 }
 .shelfish-btn:hover { background-color: color-mix(in srgb, currentColor, transparent 90%) !important; border-color: color-mix(in srgb, currentColor, transparent 60%) !important; }
 
+/* arrow animation from your last request */
 .shelfish-btn .shelfish-arrow { 
     display: inline-block !important; 
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; 
@@ -94,8 +99,3 @@
 
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
-
-@media (max-width: 480px) { 
-    /* on mobile, smaller thumbs are usually better */
-    .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)) !important; }
-}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelfish Masonry Test</title>
+    <style>
+        body { font-family: system-ui; background: #222; color: #eee; line-height: 1.6; padding: 2rem; }
+        main { max-width: 700px; margin: 0 auto; border: 1px solid #444; padding: 2rem; }
+        
+        /* the css we will use in shelfish.css */
+        .shelfish-container { margin: 2rem 0; width: 100%; }
+        .shelfish-grid { 
+            display: flex; gap: 1rem; align-items: flex-start; 
+        }
+        .shelfish-lane { 
+            flex: 1; display: flex; flex-direction: column; gap: 1.2rem; 
+        }
+        
+        /* dummy card styles */
+        .shelfish-item-wrapper { background: #333; border-radius: 12px; padding: 1rem; border: 1px solid #444; }
+        .shelfish-title { font-weight: 500; font-size: 1rem; }
+        .shelfish-author { font-size: 0.8rem; opacity: 0.8; margin-top: 0.2rem; }
+        .shelfish-thumb { background: #444; width: 100%; aspect-ratio: 2/3; margin-bottom: 0.8rem; border-radius: 4px; }
+        .shelfish-btn { display: block; margin-top: 1rem; padding: 0.8rem; border: 1px solid #555; border-radius: 6px; font-size: 0.9rem; text-decoration: none; color: inherit; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1 id="heading">Reading and watching:</h1>
+        <ul id="source-list">
+            <li>[Book] How to Sharpen Pencils: A Practical & Theoretical Treatise on the Artisanal Craft of Pencil Sharpening for Writers, Artists, Contractors, Flange Turners, Anglesmiths, & Civil Servants | David Rees</li>
+            <li>[Book] Me Talk Pretty One Day | David Sedaris | /review | Get ePubh</li>
+            <li>[Movie] Dr. Strangelove | Stanley Kubrick</li>
+            <li>[TV] Superstore | Justin Spitzer</li>
+        </ul>
+    </main>
+
+    <script>
+        // the reactive masonry logic
+        class MasonryEngine {
+            constructor(ul) {
+                this.ul = ul;
+                this.items = Array.from(ul.querySelectorAll('li')).map(li => li.innerText);
+                this.container = document.createElement('div');
+                this.container.className = 'shelfish-container';
+                ul.replaceWith(this.container);
+                
+                this.observe();
+            }
+
+            observe() {
+                const observer = new ResizeObserver(() => this.layout());
+                observer.observe(this.container);
+            }
+
+            layout() {
+                const width = this.container.offsetWidth;
+                // standard css break-points but reactive
+                const cols = width > 500 ? 3 : (width > 300 ? 2 : 1);
+                
+                if (this.currentCols === cols) return;
+                this.currentCols = cols;
+
+                console.log("Laying out with", cols, "columns");
+                
+                const lanes = Array.from({ length: cols }, () => []);
+                this.items.forEach((text, idx) => {
+                    lanes[idx % cols].push(this.render(text));
+                });
+
+                const html = `<div class="shelfish-grid">${lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('')}</div>`;
+                this.container.innerHTML = html;
+            }
+
+            render(text) {
+                // simple mock render
+                const isShort = text.includes('Me Talk Pretty');
+                const hasBtn = text.includes('|');
+                const parts = text.split('|');
+                const title = parts[0].trim();
+                const author = parts[1] ? parts[1].trim() : "Unknown";
+                const btn = parts[2] ? `<div class="shelfish-btn">${parts[3].trim()} →</div>` : '';
+                
+                return `
+                    <div class="shelfish-item-wrapper">
+                        <div class="shelfish-thumb"></div>
+                        <div class="shelfish-title">${title}</div>
+                        <div class="shelfish-author">${author}</div>
+                        ${btn}
+                    </div>
+                `;
+            }
+        }
+
+        new MasonryEngine(document.getElementById('source-list'));
+    </script>
+</body>
+</html>

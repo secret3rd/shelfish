@@ -1,6 +1,6 @@
 /**
  * auto-fetch media covers for bear blog.
- * pro-masonry: uses css grid with 1px auto-rows and dynamic spans.
+ * reactive-lanes masonry: re-sorts items based on live column count.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -11,7 +11,6 @@ class Shelfish {
         this.setupLazyLoader();
         this.scan();
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
-        window.addEventListener('resize', () => this.resizeAll());
     }
 
     setupLazyLoader() {
@@ -36,29 +35,39 @@ class Shelfish {
 
         const container = document.createElement('div');
         container.className = 'shelfish-container';
-        container.innerHTML = `<div class="shelfish-grid">${items.map((i, idx) => this.render(i, idx)).join('')}</div>`;
+        container._items = items;
+        container._nodeArray = nodeArray;
         ul.replaceWith(container);
+
+        // reactive layout listener
+        const ro = new ResizeObserver(() => this.layout(container));
+        ro.observe(container);
+    }
+
+    layout(container) {
+        const width = container.offsetWidth;
+        if (width === 0) return;
+        
+        // reactive column count
+        const cols = width > 500 ? 3 : (width > 350 ? 2 : 1);
+        if (container._currentCols === cols) return;
+        container._currentCols = cols;
+
+        const items = container._items;
+        const lanes = Array.from({ length: cols }, () => []);
+        
+        // distribution logic that respects order while filling lanes
+        items.forEach((item, idx) => {
+            lanes[idx % cols].push(this.render(item, idx));
+        });
+
+        const laneHTML = lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('');
+        container.innerHTML = `<div class="shelfish-grid" data-cols="${cols}">${laneHTML}</div>`;
 
         container.querySelectorAll('.shelfish-item-wrapper').forEach(wrapper => {
             wrapper._shelfishItem = items.find(i => i.id === wrapper.dataset.id);
             this.shelfish_lazy.observe(wrapper);
         });
-    }
-
-    resizeInstance(wrapper) {
-        // dynamic span calculation for masonry filling
-        const grid = wrapper.closest('.shelfish-grid');
-        if (!grid) return;
-        const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
-        const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap')) || 0;
-        const vGap = 16; // 1rem vertical gap padding
-        const contentHeight = wrapper.getBoundingClientRect().height;
-        const rowSpan = Math.ceil((contentHeight + rowGap + vGap) / (rowHeight + rowGap));
-        wrapper.style.gridRowEnd = "span " + rowSpan;
-    }
-
-    resizeAll() {
-        document.querySelectorAll('.shelfish-item-wrapper').forEach(w => this.resizeInstance(w));
     }
 
     parse(rawLine) {
@@ -90,7 +99,7 @@ class Shelfish {
         return `
             <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${index}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
-                    <div class="shelfish-thumb"><img onload="window.ShelfishInstance.itemLoaded(this)" alt="${i.title}" title="${i.title}"></div>
+                    <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title}" title="${i.title}"></div>
                     <div class="shelfish-info">
                         <div class="shelfish-title">${i.title}</div>
                         <div class="shelfish-author">${i.author}</div>
@@ -98,12 +107,6 @@ class Shelfish {
                 </div>
                 ${linkHTML}
             </div>`;
-    }
-
-    itemLoaded(img) {
-        img.classList.add('shelfish-loaded');
-        const wrapper = img.closest('.shelfish-item-wrapper');
-        if (wrapper) this.resizeInstance(wrapper);
     }
 
     async loadArt(wrapper) {
@@ -115,7 +118,7 @@ class Shelfish {
             wrapper.dataset.shelfishProcessed = "true";
             const img = wrapper.querySelector('img');
             img.src = cachedUrl;
-            img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; this.resizeInstance(wrapper); };
+            img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; };
             return;
         }
         this.queue.push(wrapper);
@@ -138,9 +141,8 @@ class Shelfish {
                     img.src = url; 
                 } else { 
                     wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; 
-                    this.resizeInstance(wrapper);
                 }
-            } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; this.resizeInstance(wrapper); }
+            } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
             await new Promise(r => setTimeout(r, 250));
         }
         this.isProcessing = false;
