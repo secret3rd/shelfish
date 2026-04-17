@@ -1,6 +1,6 @@
 /**
- * shelfish.js: ultra-lightweight media shelves for bear blog.
- * zero observers, zero width-checks. fixed 2-lane masonry.
+ * shelfish.js: ultra-lightweight 3-lane masonry.
+ * fixed 3-lane distribution for a consistent desktop grid.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -33,10 +33,10 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        // fixed 2-lane distribution for lightweight masonry packing
-        const lanes = [[], []];
+        // fixed 3-lane distribution for consistent desktop masonry
+        const lanes = [[], [], []];
         items.forEach((item, idx) => {
-            lanes[idx % 2].push(this.render(item, idx));
+            lanes[idx % 3].push(this.render(item, idx));
         });
 
         const laneHTML = lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('');
