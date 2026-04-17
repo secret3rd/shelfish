@@ -91,7 +91,12 @@ class Shelfish {
 
         const i = card._shelfishItem;
         const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
-        const cachedUrl = localStorage.getItem(cacheKey);
+        let cachedUrl = localStorage.getItem(cacheKey);
+
+        if (cachedUrl === 'null') {
+            localStorage.removeItem(cacheKey);
+            cachedUrl = null;
+        }
 
         if (cachedUrl) {
             card.dataset.shelfishProcessed = "true";
@@ -100,10 +105,8 @@ class Shelfish {
                 const thumb = card.querySelector('.shelfish-thumb');
                 if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
             };
-            if (cachedUrl !== 'null') {
-                img.src = cachedUrl;
-                img.onerror = injectPlaceholder;
-            } else { injectPlaceholder(); }
+            img.src = cachedUrl;
+            img.onerror = injectPlaceholder;
             return;
         }
 
@@ -130,13 +133,14 @@ class Shelfish {
 
             try {
                 const url = i.img || await this.fetchAPI(i);
-                localStorage.setItem(cacheKey, url || 'null');
                 if (url) {
+                    localStorage.setItem(cacheKey, url);
                     img.src = url;
                     img.onerror = injectPlaceholder;
-                } else { injectPlaceholder(); }
+                } else { 
+                    injectPlaceholder(); 
+                }
             } catch (e) { 
-                localStorage.setItem(cacheKey, 'null');
                 injectPlaceholder(); 
             }
 
