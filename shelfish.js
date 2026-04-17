@@ -4,12 +4,7 @@
 class Shelfish {
     constructor(config = {}) {
         this.key = config.tmdbKey || '8942f1dc81e199d343c97639c0bbca67';
-        this.icons = {
-            'Book': `📚`,
-            'Movie': `🎬`,
-            'TV': `📺`,
-            'Music': `🎵`
-        };
+        this.icons = { 'Book': `📚`, 'Movie': `🎬`, 'TV': `📺`, 'Music': `🎵` };
         this.queue = [];
         this.isProcessing = false;
         this.setupLazyLoader();
@@ -38,14 +33,13 @@ class Shelfish {
         if (!items.length) return;
 
         let html = `<div class="shelfish-grid">${items.map(i => this.render(i)).join('')}</div>`;
-
         const container = document.createElement('div');
         container.className = 'shelfish-container';
         container.innerHTML = html;
         ul.replaceWith(container);
 
-        container.querySelectorAll('.shelfish-card').forEach(c => {
-            c._shelfishItem = items.find(i => i.id === c.id);
+        container.querySelectorAll('.shelfish-item-wrapper').forEach(c => {
+            c._shelfishItem = items.find(i => i.id === c.dataset.id);
             this.shelfish_lazy.observe(c);
         });
     }
@@ -61,7 +55,7 @@ class Shelfish {
         const bType = tag[1].trim().toLowerCase();
         let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
         return {
-            id: `shelfish-${Math.random().toString(36).substr(2,9)}`,
+            id: `shel-` + Math.random().toString(36).substr(2,5),
             type: typeStr,
             title: tpTit.replace(tag[0], '').trim(),
             author: cr,
@@ -75,28 +69,33 @@ class Shelfish {
         const hasRev = i.link ? 'shelfish-has-review' : '';
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
-            : `<div class="shelfish-btn-wrapper"><div class="superbutton-link superbutton-rounded shelfish-btn shelfish-hidden">${i.label} <span class="shelfish-arrow">→</span></div></div>`;
-        return `<div class="shelfish-item-wrapper ${hasRev}"><div class="shelfish-card shelfish-is-${i.type.toLowerCase()}" id="${i.id}"><div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title} by ${i.author}" title="${i.title}"></div><div class="shelfish-info"><div class="shelfish-title">${i.title}</div><div class="shelfish-author">${i.author}</div></div></div>${linkHTML}</div>`;
+            : '';
+        return `
+            <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}">
+                <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
+                    <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title}" title="${i.title}"></div>
+                    <div class="shelfish-info">
+                        <div class="shelfish-title">${i.title}</div>
+                        <div class="shelfish-author">${i.author}</div>
+                    </div>
+                </div>
+                ${linkHTML}
+            </div>`;
     }
 
-    async loadArt(card) {
-        if (card.dataset.shelfishProcessed) return;
-        const i = card._shelfishItem;
+    async loadArt(wrapper) {
+        if (wrapper.dataset.shelfishProcessed) return;
+        const i = wrapper._shelfishItem;
         const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
         let cachedUrl = localStorage.getItem(cacheKey);
-        if (cachedUrl === 'null') { localStorage.removeItem(cacheKey); cachedUrl = null; }
         if (cachedUrl) {
-            card.dataset.shelfishProcessed = "true";
-            const img = card.querySelector('img');
-            const injectPlaceholder = () => {
-                const thumb = card.querySelector('.shelfish-thumb');
-                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
-            };
+            wrapper.dataset.shelfishProcessed = "true";
+            const img = wrapper.querySelector('img');
             img.src = cachedUrl;
-            img.onerror = injectPlaceholder;
+            img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; };
             return;
         }
-        this.queue.push(card);
+        this.queue.push(wrapper);
         this.processQueue();
     }
 
@@ -104,24 +103,16 @@ class Shelfish {
         if (this.isProcessing || this.queue.length === 0) return;
         this.isProcessing = true;
         while (this.queue.length > 0) {
-            const card = this.queue.shift();
-            if (card.dataset.shelfishProcessed) continue;
-            card.dataset.shelfishProcessed = "true";
-            const i = card._shelfishItem;
-            const img = card.querySelector('img');
-            const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
-            const injectPlaceholder = () => {
-                const thumb = card.querySelector('.shelfish-thumb');
-                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
-            };
+            const wrapper = this.queue.shift();
+            if (wrapper.dataset.shelfishProcessed) continue;
+            wrapper.dataset.shelfishProcessed = "true";
+            const i = wrapper._shelfishItem;
+            const img = wrapper.querySelector('img');
             try {
                 const url = i.img || await this.fetchAPI(i);
-                if (url) {
-                    localStorage.setItem(cacheKey, url);
-                    img.src = url;
-                    img.onerror = injectPlaceholder;
-                } else { injectPlaceholder(); }
-            } catch (e) { injectPlaceholder(); }
+                if (url) { localStorage.setItem(`shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_'), url); img.src = url; }
+                else { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
+            } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
             await new Promise(r => setTimeout(r, 250));
         }
         this.isProcessing = false;
@@ -137,8 +128,7 @@ class Shelfish {
             const hit = res.results && res.results.length > 0 ? res.results[0] : null;
             if (hit && hit.poster_path) return `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
             if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1000bb.jpg');
-        } catch (e) {}
-        return null;
+        } catch (e) {} return null;
     }
 }
 const initShelfish = () => { window.ShelfishInstance = new Shelfish(); };
