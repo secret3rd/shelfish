@@ -9,7 +9,10 @@ class Shelfish {
         this.isProcessing = false;
         this.setupLazyLoader();
         this.scan();
+        // re-scan on dynamic updates
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
+        // re-balance lanes on resize for perfect gapping
+        window.addEventListener('resize', () => this.rebalance());
     }
 
     setupLazyLoader() {
@@ -27,28 +30,48 @@ class Shelfish {
         });
     }
 
+    rebalance() {
+        // re-runs transformation logic if window width changes significantly
+        const now = Date.now();
+        if (this.lastRebalance && now - this.lastRebalance < 500) return;
+        this.lastRebalance = now;
+        document.querySelectorAll('.shelfish-container').forEach(c => {
+            if (c._sourceUl) this.transform(c._sourceUl, Array.from(c._sourceUl.querySelectorAll('li')));
+        });
+    }
+
     transform(ul, nodeArray) {
         ul.dataset.shelfishLoaded = "true";
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        // map all items to html first, preserving order via css
-        const renderedItems = items.map((i, idx) => this.render(i, idx));
+        // determine column count based on container width for proper sectioning
+        const width = ul.parentElement ? ul.parentElement.offsetWidth : window.innerWidth;
+        const colCount = width > 900 ? 3 : (width > 480 ? 2 : 1);
+
+        // distribute into lanes that actually fit to avoid massive gaps on wrap
+        const lanes = Array.from({ length: colCount }, () => []);
+        items.forEach((item, idx) => {
+            lanes[idx % colCount].push(this.render(item, idx));
+        });
+
+        const laneHTML = lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('');
+        const html = `<div class="shelfish-grid" data-cols="${colCount}">${laneHTML}</div>`;
+
+        let container = ul.nextElementSibling && ul.nextElementSibling.classList.contains('shelfish-container') 
+            ? ul.nextElementSibling 
+            : null;
+
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'shelfish-container';
+            container._sourceUl = ul;
+            ul.replaceWith(container);
+            ul.style.display = 'none'; // keep source for re-balancing
+            container.before(ul);
+        }
         
-        // distribute into lanes for masonry effect on desktop
-        const lanes = [[], [], []];
-        renderedItems.forEach((html, idx) => lanes[idx % 3].push(html));
-
-        let html = `
-            <div class="shelfish-lane">${lanes[0].join('')}</div>
-            <div class="shelfish-lane">${lanes[1].join('')}</div>
-            <div class="shelfish-lane">${lanes[2].join('')}</div>
-        `;
-
-        const container = document.createElement('div');
-        container.className = 'shelfish-container';
-        container.innerHTML = `<div class="shelfish-grid">${html}</div>`;
-        ul.replaceWith(container);
+        container.innerHTML = html;
 
         container.querySelectorAll('.shelfish-item-wrapper').forEach(c => {
             c._shelfishItem = items.find(i => i.id === c.dataset.id);
@@ -82,7 +105,6 @@ class Shelfish {
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : '';
-        // use css order to preserve markdown sequence regardless of html structure
         return `
             <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${index}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
