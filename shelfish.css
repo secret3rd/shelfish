@@ -28,4 +28,4 @@
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%) !important; z-index: 1 !important; }
 .shelfish-fallback-icon { font-size: 3.5rem !important; filter: grayscale(100%) opacity(0.65) contrast(1.2) !important; line-height: 1 !important; }
 
-@media (max-width: 480px) { .shelfish-grid { grid-template-columns: 1fr !important; gap: 2rem 0 !important; } .shelfish-card { max-width: 100% !important; } }
+@media (max-width: 480px) { .shelfish-grid { grid-template-columns: 1fr !important; gap: 2rem 0 !important; } .shelfish-card { max-width: 100% !important; } .shelfish-item-wrapper:not(.shelfish-has-review) .shelfish-btn-wrapper { display: none !important; } }
