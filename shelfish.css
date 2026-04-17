@@ -2,27 +2,19 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 
-/* responsive masonry lanes: packed vertically to eliminate all gaps */
+/* css-native masonry: uses columns instead of rows to eliminate all gaps */
 .shelfish-grid { 
-    display: flex !important;
-    gap: 1rem !important;
+    column-count: 3 !important;
+    column-gap: 1rem !important;
     width: 100% !important;
-    align-items: flex-start !important;
 }
 
-.shelfish-lane {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1.2rem !important;
-}
-
-/* unified container style — zero gap between card and its button */
+/* ensure cards never break across columns */
 .shelfish-item-wrapper { 
+    break-inside: avoid !important;
+    display: block !important;
     width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0 !important;
+    margin-bottom: 1.2rem !important; /* vertical gap (your 2 red bars) */
     color: inherit !important;
     overflow-wrap: break-word !important; 
     word-break: break-word !important;
@@ -99,3 +91,12 @@
 
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
+
+/* responsive columns via standard media queries */
+@media (max-width: 800px) {
+    .shelfish-grid { column-count: 2 !important; }
+}
+
+@media (max-width: 500px) {
+    .shelfish-grid { column-count: 1 !important; }
+}

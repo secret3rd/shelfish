@@ -1,6 +1,6 @@
 /**
- * shelfish.js: featherweight responsive masonry.
- * re-lanes items for 3-col (desktop), 2-col (tablet), and 1-col (mobile) viewports.
+ * shelfish.js: ultimate minimalist media shelves for bear blog.
+ * zero layout logic. purely renders a flat list for css-native masonry.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -33,30 +33,13 @@ class Shelfish {
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
+        // render as a flat list for css-native column masonry (top-to-bottom flow)
+        const gridHTML = items.map((item, idx) => this.render(item, idx)).join('');
         const container = document.createElement('div');
         container.className = 'shelfish-container';
-        container._items = items;
+        container.innerHTML = `<div class="shelfish-grid">${gridHTML}</div>`;
         ul.replaceWith(container);
 
-        // tiny observer for responsive re-laning
-        const ro = new ResizeObserver(() => this.layout(container));
-        ro.observe(container);
-    }
-
-    layout(container) {
-        const width = container.offsetWidth;
-        if (width === 0) return;
-        
-        // responsive thresholds: 700px (desktop), 450px (tablet)
-        const cols = width > 700 ? 3 : (width > 450 ? 2 : 1);
-        if (container._currentCols === cols) return;
-        container._currentCols = cols;
-
-        const items = container._items;
-        const lanes = Array.from({ length: cols }, () => []);
-        items.forEach((item, idx) => lanes[idx % cols].push(this.render(item, idx)));
-
-        container.innerHTML = `<div class="shelfish-grid">${lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('')}</div>`;
         container.querySelectorAll('.shelfish-item-wrapper').forEach(wrapper => {
             wrapper._shelfishItem = items.find(i => i.id === wrapper.dataset.id);
             this.shelfish_lazy.observe(wrapper);
@@ -90,7 +73,7 @@ class Shelfish {
         const hasRev = i.link ? 'shelfish-has-review' : '';
         const linkHTML = hasRev ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>` : '';
         return `
-            <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${idx}">
+            <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
                     <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title}" title="${i.title}"></div>
                     <div class="shelfish-info">
