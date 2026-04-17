@@ -93,6 +93,13 @@
 }
 .shelfish-btn:hover { background-color: color-mix(in srgb, currentColor, transparent 90%) !important; border-color: color-mix(in srgb, currentColor, transparent 60%) !important; }
 
+.shelfish-btn .shelfish-arrow { 
+    display: inline-block !important; 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; 
+    margin-left: 0.4rem !important; 
+}
+.shelfish-btn:hover .shelfish-arrow { transform: translateX(5px) !important; }
+
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
 
