@@ -1,5 +1,6 @@
 /**
- * auto-fetch book/album covers and movie/tv posters for your /now page on bear blog.
+ * auto-fetch media covers for bear blog.
+ * pro-masonry: uses css grid with 1px auto-rows and dynamic spans.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -9,10 +10,8 @@ class Shelfish {
         this.isProcessing = false;
         this.setupLazyLoader();
         this.scan();
-        // re-scan on dynamic updates
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
-        // re-balance lanes on resize for perfect gapping
-        window.addEventListener('resize', () => this.rebalance());
+        window.addEventListener('resize', () => this.resizeAll());
     }
 
     setupLazyLoader() {
@@ -30,53 +29,36 @@ class Shelfish {
         });
     }
 
-    rebalance() {
-        // re-runs transformation logic if window width changes significantly
-        const now = Date.now();
-        if (this.lastRebalance && now - this.lastRebalance < 500) return;
-        this.lastRebalance = now;
-        document.querySelectorAll('.shelfish-container').forEach(c => {
-            if (c._sourceUl) this.transform(c._sourceUl, Array.from(c._sourceUl.querySelectorAll('li')));
-        });
-    }
-
     transform(ul, nodeArray) {
         ul.dataset.shelfishLoaded = "true";
         const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
         if (!items.length) return;
 
-        // determine column count based on container width for proper sectioning
-        const width = ul.parentElement ? ul.parentElement.offsetWidth : window.innerWidth;
-        const colCount = width > 400 ? 3 : (width > 250 ? 2 : 1);
+        const container = document.createElement('div');
+        container.className = 'shelfish-container';
+        container.innerHTML = `<div class="shelfish-grid">${items.map((i, idx) => this.render(i, idx)).join('')}</div>`;
+        ul.replaceWith(container);
 
-        // distribute into lanes that actually fit to avoid massive gaps on wrap
-        const lanes = Array.from({ length: colCount }, () => []);
-        items.forEach((item, idx) => {
-            lanes[idx % colCount].push(this.render(item, idx));
+        container.querySelectorAll('.shelfish-item-wrapper').forEach(wrapper => {
+            wrapper._shelfishItem = items.find(i => i.id === wrapper.dataset.id);
+            this.shelfish_lazy.observe(wrapper);
         });
+    }
 
-        const laneHTML = lanes.map(l => `<div class="shelfish-lane">${l.join('')}</div>`).join('');
-        const html = `<div class="shelfish-grid" data-cols="${colCount}">${laneHTML}</div>`;
+    resizeInstance(wrapper) {
+        // dynamic span calculation for masonry filling
+        const grid = wrapper.closest('.shelfish-grid');
+        if (!grid) return;
+        const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+        const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap')) || 0;
+        const vGap = 16; // 1rem vertical gap padding
+        const contentHeight = wrapper.getBoundingClientRect().height;
+        const rowSpan = Math.ceil((contentHeight + rowGap + vGap) / (rowHeight + rowGap));
+        wrapper.style.gridRowEnd = "span " + rowSpan;
+    }
 
-        let container = ul.nextElementSibling && ul.nextElementSibling.classList.contains('shelfish-container') 
-            ? ul.nextElementSibling 
-            : null;
-
-        if (!container) {
-            container = document.createElement('div');
-            container.className = 'shelfish-container';
-            container._sourceUl = ul;
-            ul.replaceWith(container);
-            ul.style.display = 'none'; // keep source for re-balancing
-            container.before(ul);
-        }
-        
-        container.innerHTML = html;
-
-        container.querySelectorAll('.shelfish-item-wrapper').forEach(c => {
-            c._shelfishItem = items.find(i => i.id === c.dataset.id);
-            this.shelfish_lazy.observe(c);
-        });
+    resizeAll() {
+        document.querySelectorAll('.shelfish-item-wrapper').forEach(w => this.resizeInstance(w));
     }
 
     parse(rawLine) {
@@ -108,7 +90,7 @@ class Shelfish {
         return `
             <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${index}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
-                    <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title}" title="${i.title}"></div>
+                    <div class="shelfish-thumb"><img onload="window.ShelfishInstance.itemLoaded(this)" alt="${i.title}" title="${i.title}"></div>
                     <div class="shelfish-info">
                         <div class="shelfish-title">${i.title}</div>
                         <div class="shelfish-author">${i.author}</div>
@@ -116,6 +98,12 @@ class Shelfish {
                 </div>
                 ${linkHTML}
             </div>`;
+    }
+
+    itemLoaded(img) {
+        img.classList.add('shelfish-loaded');
+        const wrapper = img.closest('.shelfish-item-wrapper');
+        if (wrapper) this.resizeInstance(wrapper);
     }
 
     async loadArt(wrapper) {
@@ -127,7 +115,7 @@ class Shelfish {
             wrapper.dataset.shelfishProcessed = "true";
             const img = wrapper.querySelector('img');
             img.src = cachedUrl;
-            img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; };
+            img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; this.resizeInstance(wrapper); };
             return;
         }
         this.queue.push(wrapper);
@@ -150,8 +138,9 @@ class Shelfish {
                     img.src = url; 
                 } else { 
                     wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; 
+                    this.resizeInstance(wrapper);
                 }
-            } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
+            } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; this.resizeInstance(wrapper); }
             await new Promise(r => setTimeout(r, 250));
         }
         this.isProcessing = false;

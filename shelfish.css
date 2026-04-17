@@ -2,31 +2,27 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 
-/* desktop: flexible flex lanes for gap-filling masonry */
+/* pro masonry grid: uses 1px rows for infinite vertical precision */
 .shelfish-grid { 
-    display: flex !important;
-    gap: 1rem !important;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)) !important; 
+    grid-auto-rows: 1px !important;
+    gap: 0 1rem !important; /* horizontal gap only; vertical handled by span */
     width: 100% !important;
     align-items: flex-start !important;
 }
 
-.shelfish-lane {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1.2rem !important;
-}
-
-/* unified container style — zero gap between card and its button */
+/* items ignore lanes entirely */
 .shelfish-item-wrapper { 
-    width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
     color: inherit !important;
+    align-self: flex-start !important;
     overflow-wrap: break-word !important; 
     word-break: break-word !important;
     hyphens: auto !important;
+    margin-bottom: 0 !important; /* gap handled by grid span */
 }
 
 .shelfish-card { 
@@ -99,15 +95,7 @@
 /* missing art fallback */
 .shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
 
-@media (max-width: 400px) {
-    .shelfish-grid { 
-        display: grid !important; 
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1rem !important;
-    }
-    .shelfish-lane { display: contents !important; }
-}
-
-@media (max-width: 250px) { 
-    .shelfish-grid { grid-template-columns: 1fr !important; }
+@media (max-width: 480px) { 
+    /* on mobile, smaller thumbs are usually better */
+    .shelfish-grid { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)) !important; }
 }
