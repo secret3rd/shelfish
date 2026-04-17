@@ -10,8 +10,15 @@ class Shelfish {
             'TV': `📺`,
             'Music': `🎵`
         };
+        this.setupLazyLoader();
         this.scan();
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
+    }
+
+    setupLazyLoader() {
+        this.shelfish_lazy = new IntersectionObserver(es => es.forEach(e => {
+            if (e.isIntersecting) { this.loadArt(e.target); this.shelfish_lazy.unobserve(e.target); }
+        }), { rootMargin: '500px' });
     }
 
 
@@ -37,9 +44,13 @@ class Shelfish {
         container.innerHTML = html;
         ul.replaceWith(container);
 
-        container.querySelectorAll('.shelfish-card').forEach(c => {
+        container.querySelectorAll('.shelfish-card').forEach((c, index) => {
             c._shelfishItem = items.find(i => i.id === c.id);
-            this.loadArt(c);
+            if (index < 4) {
+               this.loadArt(c);
+            } else {
+               this.shelfish_lazy.observe(c);
+            }
         });
     }
 
