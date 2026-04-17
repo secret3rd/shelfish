@@ -5,7 +5,7 @@
 /* desktop: flexible flex lanes for gap-filling masonry */
 .shelfish-grid { 
     display: flex !important;
-    gap: 1.5rem !important;
+    gap: 1rem !important; /* tightened from 1.5rem */
     width: 100% !important;
     align-items: flex-start !important;
 }
@@ -14,10 +14,10 @@
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 1.5rem !important;
+    gap: 1rem !important; /* tightened vertical packing */
 }
 
-/* unified container style */
+/* unified container style — no gap between card and button */
 .shelfish-item-wrapper { 
     width: 100% !important;
     display: flex !important;
@@ -54,7 +54,7 @@
 .shelfish-title { 
     font-size: 1.1rem !important; 
     font-weight: 600 !important; 
-    line-height: 1.25 !important; 
+    line-height: 1.3 !important; /* slightly more breathing room for long titles */
     letter-spacing: -0.01em !important; 
     margin: 0 !important;
 }
@@ -66,17 +66,21 @@
     font-style: italic !important;
 }
 
-/* reviews join the card */
-.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom: none !important; }
+/* seamless join for reviews — card and button become one object */
+.shelfish-has-review .shelfish-card { 
+    border-bottom-left-radius: 0 !important; 
+    border-bottom-right-radius: 0 !important; 
+    border-bottom: none !important; /* remove border overlap */
+}
 
 .shelfish-btn-wrapper { margin: 0 !important; display: block !important; width: 100% !important; color: inherit !important; }
 .shelfish-btn { 
-    width: 100% !important; display: block !important; padding: 0.6rem 0.8rem !important; box-sizing: border-box !important; 
+    width: 100% !important; display: block !important; padding: 0.8rem !important; box-sizing: border-box !important; 
     border: 1px solid color-mix(in srgb, currentColor, transparent 80%) !important; 
     background-color: transparent !important; color: inherit !important; 
     border-radius: 6px !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;
     text-decoration: none !important; font-size: 0.9rem !important; 
-    font-weight: 600 !important; /* matches title weight */
+    font-weight: 600 !important;
     transition: all 0.2s ease !important; text-align: left !important; 
 }
 .shelfish-btn:hover { background-color: color-mix(in srgb, currentColor, transparent 90%) !important; border-color: color-mix(in srgb, currentColor, transparent 60%) !important; }
@@ -88,7 +92,7 @@
     .shelfish-grid { 
         display: grid !important; 
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1.5rem !important;
+        gap: 1rem !important;
     }
     .shelfish-lane { display: contents !important; }
 }
