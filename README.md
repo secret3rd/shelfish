@@ -46,19 +46,18 @@ This is lightweight but will still bring down your load speed by a few milliseco
 
 ### Deployment Code
 
-For the fastest page load times (and best Google PageSpeed scores), paste the CSS in your `<head>` and the script tag at the bottom of your `<body>` (or in a footer injection if Bear Blog supports it).
+For the fastest page load times (and best Google PageSpeed scores) while keeping your implementation isolated from your blog's global Theme Styling and Footer Directives, I recommend pasting this **directly into your page editor** on Bear (e.g., at the top and bottom of your `/now` page's markdown box).
 
 ```html
-<head>
+<!-- Place this at the VERY TOP of your page editor -->
 <style>
 /* Paste full source from shelfish.css here if you want total independence */
-@import url('https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.css');
+  @import url('https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.css');
 </style>
-</head>
 
-... Your page content ...
+... Your markdown content and list of shelves ...
 
-<!-- Place scripts right before closing body or in your footer injection -->
+<!-- Place this at the VERY BOTTOM of your page editor -->
 <script src="https://cdn.jsdelivr.net/gh/secret3rd/shelfish/shelfish.js"></script>
 ```
 
