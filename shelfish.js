@@ -10,6 +10,8 @@ class Shelfish {
             'TV': `📺`,
             'Music': `🎵`
         };
+        this.queue = [];
+        this.isProcessing = false;
         this.setupLazyLoader();
         this.scan();
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
@@ -18,8 +20,9 @@ class Shelfish {
     setupLazyLoader() {
         this.shelfish_lazy = new IntersectionObserver(es => es.forEach(e => {
             if (e.isIntersecting) { this.loadArt(e.target); this.shelfish_lazy.unobserve(e.target); }
-        }), { rootMargin: '300px' });
+        }), { rootMargin: '400px' });
     }
+
 
     scan() {
         /* Scans for the trigger emoji anywhere in the first item's content to ensure detection regardless of formatting. */
@@ -84,17 +87,68 @@ class Shelfish {
     }
 
     async loadArt(card) {
-        const i = card._shelfishItem;
-        const img = card.querySelector('img');
-        const injectPlaceholder = () => card.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
+        if (card.dataset.shelfishProcessed) return;
 
-        try {
-            const url = i.img || await this.fetchAPI(i);
-            if (url) {
-                img.src = url;
-                img.onerror = injectPlaceholder;
-            } else { injectPlaceholder(); }
-        } catch (e) { injectPlaceholder(); }
+        const i = card._shelfishItem;
+        const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
+        let cachedUrl = localStorage.getItem(cacheKey);
+
+        if (cachedUrl === 'null') {
+            localStorage.removeItem(cacheKey);
+            cachedUrl = null;
+        }
+
+        if (cachedUrl) {
+            card.dataset.shelfishProcessed = "true";
+            const img = card.querySelector('img');
+            const injectPlaceholder = () => {
+                const thumb = card.querySelector('.shelfish-thumb');
+                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
+            };
+            img.src = cachedUrl;
+            img.onerror = injectPlaceholder;
+            return;
+        }
+
+        this.queue.push(card);
+        this.processQueue();
+    }
+
+    async processQueue() {
+        if (this.isProcessing || this.queue.length === 0) return;
+        this.isProcessing = true;
+
+        while (this.queue.length > 0) {
+            const card = this.queue.shift();
+            if (card.dataset.shelfishProcessed) continue;
+            card.dataset.shelfishProcessed = "true";
+
+            const i = card._shelfishItem;
+            const img = card.querySelector('img');
+            const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
+            const injectPlaceholder = () => {
+                const thumb = card.querySelector('.shelfish-thumb');
+                if (thumb) thumb.innerHTML = `<div class="shelfish-placeholder"><span class="shelfish-fallback-icon">${this.icons[i.type]}</span></div>`;
+            };
+
+            try {
+                const url = i.img || await this.fetchAPI(i);
+                if (url) {
+                    localStorage.setItem(cacheKey, url);
+                    img.src = url;
+                    img.onerror = injectPlaceholder;
+                } else { 
+                    injectPlaceholder(); 
+                }
+            } catch (e) { 
+                injectPlaceholder(); 
+            }
+
+            // Throttling: wait 250ms before next request to stay under iTunes/TMDB rate limits
+            await new Promise(r => setTimeout(r, 250));
+        }
+
+        this.isProcessing = false;
     }
 
     async fetchAPI({ type, title, author }) {
