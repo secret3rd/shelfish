@@ -1,6 +1,6 @@
 /**
- * auto-fetch media covers for bear blog.
- * reactive-lanes masonry: re-sorts items based on live column count.
+ * auto-fetch media covers for bear blog with reactive-lanes masonry.
+ * preserves horizontal order while ensuring zero vertical gaps.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -36,10 +36,9 @@ class Shelfish {
         const container = document.createElement('div');
         container.className = 'shelfish-container';
         container._items = items;
-        container._nodeArray = nodeArray;
         ul.replaceWith(container);
 
-        // reactive layout listener
+        // reactive observer for real-time lane re-balancing
         const ro = new ResizeObserver(() => this.layout(container));
         ro.observe(container);
     }
@@ -48,7 +47,7 @@ class Shelfish {
         const width = container.offsetWidth;
         if (width === 0) return;
         
-        // reactive column count
+        // threshold for responsive lanes
         const cols = width > 500 ? 3 : (width > 350 ? 2 : 1);
         if (container._currentCols === cols) return;
         container._currentCols = cols;
@@ -56,7 +55,7 @@ class Shelfish {
         const items = container._items;
         const lanes = Array.from({ length: cols }, () => []);
         
-        // distribution logic that respects order while filling lanes
+        // distribute items across top-down lanes to maintain horizontal sequence
         items.forEach((item, idx) => {
             lanes[idx % cols].push(this.render(item, idx));
         });
@@ -91,13 +90,13 @@ class Shelfish {
         };
     }
 
-    render(i, index) {
+    render(i, idx) {
         const hasRev = i.link ? 'shelfish-has-review' : '';
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
             : '';
         return `
-            <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${index}">
+            <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}" style="order: ${idx}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
                     <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title}" title="${i.title}"></div>
                     <div class="shelfish-info">
