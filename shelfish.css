@@ -2,21 +2,16 @@
     background: transparent !important; margin: 2rem auto !important; clear: both !important; color: inherit !important; width: 100% !important; max-width: 1000px !important;
 }
 .shelfish-grid { 
-    columns: 3 13rem !important; 
-    column-gap: 1.5rem !important;
-    width: 100% !important;
-    margin: 0 !important;
+    display: grid !important; 
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)) !important; 
+    gap: 1.5rem !important; 
+    align-items: stretch !important; /* ensures all cards in a row have uniform height */
+    margin-bottom: 2rem !important; 
+    color: inherit !important; 
 }
 
-/* Single Unified Container — this prevents "breaking" between card and button */
-.shelfish-item-wrapper { 
-    display: inline-block !important; /* Required for columns masonry */
-    width: 100% !important;
-    break-inside: avoid !important; 
-    margin-bottom: 1.5rem !important; /* Clean displacement container-to-container */
-    color: inherit !important;
-}
-
+/* items stretch to match the tallest neighbor, ensuring perfect vertical margins */
+.shelfish-item-wrapper { display: flex !important; flex-direction: column !important; gap: 0 !important; color: inherit !important; height: 100% !important; }
 .shelfish-card { 
     background: color-mix(in srgb, currentColor, transparent 88%) !important; 
     border-radius: 12px !important; 
@@ -30,19 +25,21 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important; 
     width: 100% !important; 
     position: relative !important; 
+    flex: 1 !important; /* card grows to fill height if no button is present */
 }
 
+/* media art sizing */
 .shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 4px !important; position: relative !important; overflow: hidden !important; background: color-mix(in srgb, currentColor, transparent 88%) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 .shelfish-is-music .shelfish-thumb { aspect-ratio: 1/1 !important; }
 .shelfish-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.8s ease !important; z-index: 2 !important; }
 .shelfish-thumb img.shelfish-loaded { opacity: 1 !important; }
+
+/* text hierarchy */
 .shelfish-info { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; color: inherit !important; }
 .shelfish-title { font-size: 0.95rem !important; font-weight: 500 !important; line-height: 1.3 !important; letter-spacing: -0.01em !important; margin: 0 !important; }
 .shelfish-author { font-size: 0.8rem !important; opacity: 0.8 !important; line-height: 1.4 !important; }
 
-/* Joined look for reviews */
-.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom: none !important; }
-
+/* button styles join the card when a review exists */
 .shelfish-btn-wrapper { margin: 0 !important; display: block !important; width: 100% !important; color: inherit !important; }
 .shelfish-btn { 
     width: 100% !important; display: block !important; padding: 0.6rem 0.8rem !important; box-sizing: border-box !important; 
@@ -52,9 +49,14 @@
     text-decoration: none !important; font-size: 0.9rem !important; font-weight: 700 !important; transition: all 0.2s ease !important; text-align: left !important; 
 }
 .shelfish-btn:hover { background-color: color-mix(in srgb, currentColor, transparent 90%) !important; border-color: color-mix(in srgb, currentColor, transparent 60%) !important; }
+.shelfish-btn.shelfish-hidden { visibility: hidden !important; pointer-events: none !important; border: none !important; }
 
-.shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.5; }
+/* joined appearance */
+.shelfish-has-review .shelfish-card { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom: none !important; }
+
+/* placeholder for missing art */
+.shelfish-placeholder { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, #eee 0%, #ccc 100%) !important; font-size: 3rem; filter: grayscale(1); opacity: 0.2; }
 
 @media (max-width: 480px) { 
-    .shelfish-grid { columns: 1 !important; } 
+    .shelfish-grid { grid-template-columns: 1fr !important; } 
 }

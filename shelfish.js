@@ -1,5 +1,5 @@
 /**
- * Auto-fetch book/album covers and movie/tv posters for your /now page on bear blog.
+ * auto-fetch book/album covers and movie/tv posters for your /now page on bear blog.
  */
 class Shelfish {
     constructor(config = {}) {
@@ -9,6 +9,7 @@ class Shelfish {
         this.isProcessing = false;
         this.setupLazyLoader();
         this.scan();
+        // re-scan on dynamic page updates
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
     }
 
@@ -19,6 +20,7 @@ class Shelfish {
     }
 
     scan() {
+        // find lists with the trigger emoji
         document.querySelectorAll('ul:not([data-shelfish-loaded])').forEach(ul => {
             const li = ul.querySelector('li');
             if (li && (li.innerHTML.includes('🔢') || li.innerText.includes('🔢'))) {
@@ -38,6 +40,7 @@ class Shelfish {
         container.innerHTML = html;
         ul.replaceWith(container);
 
+        // observe for lazy loading
         container.querySelectorAll('.shelfish-item-wrapper').forEach(c => {
             c._shelfishItem = items.find(i => i.id === c.dataset.id);
             this.shelfish_lazy.observe(c);
@@ -66,10 +69,11 @@ class Shelfish {
     }
 
     render(i) {
+        // button坐 sits in the same container to ensure unified alignment
         const hasRev = i.link ? 'shelfish-has-review' : '';
         const linkHTML = i.link
             ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>`
-            : '';
+            : `<div class="shelfish-btn-wrapper"><div class="shelfish-btn shelfish-hidden">${i.label}</div></div>`;
         return `
             <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}">
                 <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
@@ -88,13 +92,17 @@ class Shelfish {
         const i = wrapper._shelfishItem;
         const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
         let cachedUrl = localStorage.getItem(cacheKey);
-        if (cachedUrl) {
+
+        // check local cache first for instant load
+        if (cachedUrl && cachedUrl !== 'null') {
             wrapper.dataset.shelfishProcessed = "true";
             const img = wrapper.querySelector('img');
             img.src = cachedUrl;
             img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; };
             return;
         }
+        
+        // push to throttled queue to avoid rate limits
         this.queue.push(wrapper);
         this.processQueue();
     }
@@ -110,9 +118,14 @@ class Shelfish {
             const img = wrapper.querySelector('img');
             try {
                 const url = i.img || await this.fetchAPI(i);
-                if (url) { localStorage.setItem(`shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_'), url); img.src = url; }
-                else { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
+                if (url) { 
+                    localStorage.setItem(`shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_'), url); 
+                    img.src = url; 
+                } else { 
+                    wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; 
+                }
             } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
+            // wait 250ms between requests to stay safe
             await new Promise(r => setTimeout(r, 250));
         }
         this.isProcessing = false;
