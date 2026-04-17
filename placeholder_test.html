@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shelfish | Placeholders</title>
+    <link rel="stylesheet" href="./shelfish.css">
+    
+    <!-- We will fake the fetch api to instantly trigger catch errors for the placeholders -->
+    <script>
+        window.fetch = () => Promise.reject("Failing fetch deliberately for testing placeholders");
+    </script>
+    <script src="./shelfish.js"></script>
+
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ececec;
+            font-family: -apple-system, system-ui, sans-serif;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        h1 { opacity: 0.8; font-weight: 500; font-size: 1.4rem; padding-bottom: 1rem; border-bottom: 2px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+
+    <h1>Testing Forced Placeholders</h1>
+
+    <ul>
+        <li>🔢</li>
+        <li>[Book] Missing Book | Invalid Author | # | #</li>
+        <li>[Movie] Missing Movie | Invalid Director | /link/ | Sample Review</li>
+        <li>[TV] Missing Show | Invalid Creator | /link/ | Watch Here</li>
+        <li>[Music] Missing Album | Invalid Artist | # | Listen Now</li>
+    </ul>
+
+</body>
+</html>

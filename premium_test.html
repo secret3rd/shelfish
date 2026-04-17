@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelfish | Premium Ghost Theme Concept</title>
+    <style>
+        /* Host Themes */
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
+        
+        .theme-block {
+            padding: 60px 40px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* 1. Light Mode (Classic) */
+        .theme-light { background-color: #fcfcfc; color: #1a1a1a; }
+        
+        /* 2. Dark Teal Mode (From Screenshot) */
+        .theme-teal { background-color: #0d1f22; color: #e4efe4; }
+
+        /* 3. Sepia / Warm Mode */
+        .theme-sepia { background-color: #f7f3e8; color: #4a3e30; }
+
+        h2 { margin-top: 0; opacity: 0.8; }
+
+        /* --- PREMIUM GHOST CSS CONCEPT --- */
+        .shelfish-container {
+            /* Inherits body text color exactly at all times */
+            --shelfish-text: currentColor;
+            /* Very sparse, subtle background tint from text color */
+            --shelfish-bg-tint: color-mix(in srgb, currentColor, transparent 95%); 
+            /* Soft border mixed with high transparency */
+            --shelfish-border: color-mix(in srgb, currentColor, transparent 88%); 
+            
+            margin: 2rem 0 !important; clear: both !important; 
+        }
+
+        .shelfish-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important; gap: 3rem 1.5rem !important; align-items: stretch !important; margin-bottom: 2rem !important; }
+        .shelfish-item-wrapper { display: flex !important; flex-direction: column !important; gap: 0.2rem !important; height: 100% !important; }
+
+        .shelfish-card {
+            background: var(--shelfish-bg-tint) !important; 
+            border-radius: 10px !important; 
+            padding: 0.8rem !important; 
+            border: 1px solid var(--shelfish-border) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important; /* Extremely soft dimension */
+            box-sizing: border-box !important; 
+            display: flex !important; 
+            flex-direction: column !important; 
+            gap: 0.6rem !important; 
+            flex: 1 !important; 
+            color: var(--shelfish-text) !important; 
+        }
+
+        .shelfish-title { font-size: 0.95rem !important; font-weight: 700 !important; line-height: 1.3 !important; letter-spacing: -0.01em !important; margin: 0 !important; color: inherit; }
+        .shelfish-author { font-size: 0.8rem !important; opacity: 0.7 !important; line-height: 1.4 !important; color: inherit; }
+
+        .shelfish-btn-wrapper { display: flex !important; justify-content: center !important; width: 100% !important; align-self: center !important; margin: 0 !important; }
+        .shelfish-btn { 
+            width: 100% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.4rem !important; 
+            padding: 0.6em 1em !important; box-sizing: border-box !important; 
+            border: 1.2px solid var(--shelfish-border) !important; 
+            background-color: transparent !important; 
+            color: var(--shelfish-text) !important; 
+            border-radius: 6px !important; text-decoration: none !important; font-size: 0.85rem !important; font-weight: 600 !important; transition: all 0.25s ease !important; 
+        }
+
+        .shelfish-btn:hover { 
+            background-color: color-mix(in srgb, var(--shelfish-text), transparent 90%) !important; 
+            border-color: color-mix(in srgb, var(--shelfish-text), transparent 60%) !important;
+        }
+
+        .shelfish-thumb { width: 100% !important; aspect-ratio: 2/3 !important; border-radius: 6px !important; position: relative !important; overflow: hidden !important; flex-shrink: 0 !important; border: 1px solid var(--shelfish-border); background: var(--shelfish-bg-tint); display: flex; align-items: center; justify-content: center;}
+        .shelfish-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
+        .shelfish-thumb svg { width: 40%; height: 40%; fill: currentColor; opacity: 0.15; }
+    </style>
+</head>
+<body>
+
+<template id="card-template">
+    <div class="shelfish-container">
+        <div class="shelfish-grid">
+            <div class="shelfish-item-wrapper">
+                <div class="shelfish-card">
+                    <div class="shelfish-thumb">
+                        <img src="https://is1-ssl.mzstatic.com/image/thumb/Publication3/v4/b9/bb/25/b9bb25e8-dd9f-21f0-c854-f2988ef32c41/9780763670344.jpg/1000x1000bb.jpg">
+                    </div>
+                    <div class="shelfish-info">
+                        <div class="shelfish-title">The Strange and Beautiful Sorrows of Ava Lavender</div>
+                        <div class="shelfish-author">Leslye Walton</div>
+                    </div>
+                </div>
+                <div class="shelfish-btn-wrapper">
+                    <a href="#" class="shelfish-btn">Read review →</a>
+                </div>
+            </div>
+            
+            <div class="shelfish-item-wrapper">
+                <div class="shelfish-card">
+                    <div class="shelfish-thumb">
+                        <img src="https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/e8/43/5f/e8435ffa-b6b9-b171-40ab-4ff3959ab661/886443919266.jpg/1000x1000bb.jpg" style="aspect-ratio: 1/1;">
+                    </div>
+                    <div class="shelfish-info">
+                        <div class="shelfish-title">Random Access Memories</div>
+                        <div class="shelfish-author">Daft Punk</div>
+                    </div>
+                </div>
+                <div class="shelfish-btn-wrapper">
+                    <a href="#" class="shelfish-btn">Listen →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<div class="theme-block theme-light">
+    <h2>1. Light/Classic Mode</h2>
+</div>
+
+<div class="theme-block theme-teal">
+    <h2>2. Dark Teal Mode (From your image)</h2>
+</div>
+
+<div class="theme-block theme-sepia">
+    <h2>3. Sepia / Warm Mode</h2>
+</div>
+
+<script>
+    const template = document.getElementById('card-template').innerHTML;
+    document.querySelector('.theme-light').innerHTML += template;
+    document.querySelector('.theme-teal').innerHTML += template;
+    document.querySelector('.theme-sepia').innerHTML += template;
+</script>
+
+</body>
+</html>
