@@ -1,135 +1,162 @@
 /**
- * shelfish.js: ultimate minimalist media shelves for bear blog.
- * zero layout logic. purely renders a flat list for css-native masonry.
+ * shelfish v4-scratch: lean, grid-based media shelves.
+ * circular priority fetching & native glassmorphism.
  */
 class Shelfish {
-    constructor(config = {}) {
-        this.key = config.tmdbKey || '8942f1dc81e199d343c97639c0bbca67';
-        this.icons = { 'Book': `📚`, 'Movie': `🎬`, 'TV': `📺`, 'Music': `🎵` };
-        this.queue = [];
-        this.isProcessing = false;
-        this.setupLazyLoader();
-        this.scan();
-        new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
+    constructor() {
+        this.key = '8942f1dc81e199d343c97639c0bbca67'; // tmdb key
+        this.icons = { 'Book': '📚', 'Movie': '🎬', 'TV': '📺', 'Music': '🎵' };
+        this.items = []; // flat list of all items across all shelves
+        this.processedIds = new Set();
+        this.isFetching = false;
+        
+        this.init();
     }
 
-    setupLazyLoader() {
-        this.shelfish_lazy = new IntersectionObserver(es => es.forEach(e => {
-            if (e.isIntersecting) { this.loadArt(e.target); this.shelfish_lazy.unobserve(e.target); }
-        }), { rootMargin: '400px' });
+    init() {
+        this.scan();
+        // watch for dynamic content additions
+        new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
     }
 
     scan() {
         document.querySelectorAll('ul:not([data-shelfish-loaded])').forEach(ul => {
-            const li = ul.querySelector('li');
-            if (li && (li.innerHTML.includes('🔢') || li.innerText.includes('🔢'))) {
-                this.transform(ul, Array.from(ul.querySelectorAll('li')));
+            const first = ul.querySelector('li');
+            if (first && (first.innerHTML.includes('📚') || first.innerText.includes('📚'))) {
+                this.transform(ul);
             }
         });
     }
 
-    transform(ul, nodeArray) {
+    transform(ul) {
         ul.dataset.shelfishLoaded = "true";
-        const items = nodeArray.map(node => this.parse(node.innerText || node.textContent)).filter(Boolean);
-        if (!items.length) return;
+        const rawItems = Array.from(ul.querySelectorAll('li')).slice(1); // skip trigger icon
+        const shelfItems = rawItems.map(li => this.parse(li.innerText || li.textContent)).filter(Boolean);
+        if (!shelfItems.length) return;
 
-        // render as a flat list for css-native column masonry (top-to-bottom flow)
-        const gridHTML = items.map((item, idx) => this.render(item, idx)).join('');
         const container = document.createElement('div');
-        container.className = 'shelfish-container';
-        container.innerHTML = `<div class="shelfish-grid">${gridHTML}</div>`;
+        container.className = 'shelfish-v4-container';
+        
+        const grid = document.createElement('div');
+        grid.className = 'shelfish-v4-grid';
+        
+        shelfItems.forEach(item => {
+            this.items.push(item);
+            grid.innerHTML += this.render(item);
+        });
+
+        container.appendChild(grid);
         ul.replaceWith(container);
 
-        container.querySelectorAll('.shelfish-item-wrapper').forEach(wrapper => {
-            wrapper._shelfishItem = items.find(i => i.id === wrapper.dataset.id);
-            this.shelfish_lazy.observe(wrapper);
-        });
+        // observe items for circular priority fetching
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !this.isFetching) {
+                    this.startCircularFetch(entry.target.dataset.id);
+                }
+            });
+        }, { rootMargin: '100px' });
+
+        container.querySelectorAll('.shelfish-v4-item').forEach(el => observer.observe(el));
     }
 
-    parse(rawLine) {
-        const parts = rawLine.split('|').map(s => s.trim());
-        if (parts.length < 2) return null;
-        const [tpTit, cr] = parts;
-        const tag = tpTit.match(/\[(.*?)\]/i);
-        if (!tag || !cr || cr === '#') return null;
+    parse(raw) {
+        const p = raw.split('|').map(s => s.trim());
+        if (p.length < 2) return null;
         
-        const rawLk = parts[2];
-        const lk = (rawLk && rawLk !== '#' && rawLk.trim().length > 0) ? rawLk.trim() : null;
-        const label = (lk && parts[3] && parts[3] !== '#') ? parts[3] : 'Read review';
-        const bType = tag[1].trim().toLowerCase();
-        let typeStr = bType === 'tv' ? 'TV' : bType.charAt(0).toUpperCase() + bType.slice(1);
+        const tagMatch = p[0].match(/\[(.*?)\]/i);
+        if (!tagMatch) return null;
+        
+        const type = tagMatch[1].trim().toLowerCase();
+        let typeStr = type === 'tv' ? 'TV' : type.charAt(0).toUpperCase() + type.slice(1);
+        
         return {
-            id: `shel-` + Math.random().toString(36).substr(2,5),
+            id: 'sh-' + Math.random().toString(36).substr(2, 9),
             type: typeStr,
-            title: tpTit.replace(tag[0], '').trim(),
-            author: cr,
-            img: null,
-            link: lk,
-            label: label
+            title: p[0].replace(tagMatch[0], '').trim(),
+            author: p[1],
+            link: (p[2] && p[2] !== '#') ? p[2] : null,
+            label: (p[3] && p[3] !== '#') ? p[3] : 'Read review'
         };
     }
 
-    render(i, idx) {
-        const hasRev = i.link ? 'shelfish-has-review' : '';
-        const linkHTML = hasRev ? `<div class="shelfish-btn-wrapper"><a href="${i.link}" class="superbutton-link superbutton-rounded shelfish-btn">${i.label} <span class="shelfish-arrow">→</span></a></div>` : '';
+    render(i) {
+        const btn = i.link ? `<a href="${i.link}" class="shelfish-v4-btn">${i.label} →</a>` : '';
         return `
-            <div class="shelfish-item-wrapper ${hasRev}" data-id="${i.id}">
-                <div class="shelfish-card shelfish-is-${i.type.toLowerCase()}">
-                    <div class="shelfish-thumb"><img onload="this.classList.add('shelfish-loaded')" alt="${i.title}" title="${i.title}"></div>
-                    <div class="shelfish-info">
-                        <div class="shelfish-title">${i.title}</div>
-                        <div class="shelfish-author">${i.author}</div>
+            <div class="shelfish-v4-item" data-id="${i.id}" data-type="${i.type}" data-title="${i.title}" data-author="${i.author}">
+                <div class="shelfish-v4-card">
+                    <div class="shelfish-v4-thumb">
+                        <div class="shelfish-v4-placeholder">${this.icons[i.type] || '📖'}</div>
+                        <img class="shelfish-v4-img" alt="${i.title}">
+                    </div>
+                    <div class="shelfish-v4-info">
+                        <div class="shelfish-v4-title">${i.title}</div>
+                        <div class="shelfish-v4-author">${i.author}</div>
+                        ${btn}
                     </div>
                 </div>
-                ${linkHTML}
             </div>`;
     }
 
-    async loadArt(wrapper) {
-        if (wrapper.dataset.shelfishProcessed) return;
-        const i = wrapper._shelfishItem;
-        const cacheKey = `shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_');
-        let cachedUrl = localStorage.getItem(cacheKey);
-        if (cachedUrl) {
-            wrapper.dataset.shelfishProcessed = "true";
-            const img = wrapper.querySelector('img');
-            img.src = cachedUrl;
-            img.onerror = () => { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; };
-            return;
+    async startCircularFetch(startId) {
+        if (this.isFetching) return;
+        this.isFetching = true;
+
+        const startIndex = this.items.findIndex(it => it.id === startId);
+        if (startIndex === -1) { this.isFetching = false; return; }
+
+        // create circular sequence: started -> end, then beginning -> started
+        const sequence = [
+            ...this.items.slice(startIndex),
+            ...this.items.slice(0, startIndex)
+        ];
+
+        for (const item of sequence) {
+            if (this.processedIds.has(item.id)) continue;
+            await this.fetchArtwork(item);
+            this.processedIds.add(item.id);
+            // tiny breather for api limits
+            await new Promise(r => setTimeout(r, 100));
         }
-        this.queue.push(wrapper); this.processQueue();
+
+        this.isFetching = false;
     }
 
-    async processQueue() {
-        if (this.isProcessing || this.queue.length === 0) return;
-        this.isProcessing = true;
-        while (this.queue.length > 0) {
-            const wrapper = this.queue.shift();
-            if (wrapper.dataset.shelfishProcessed) continue;
-            wrapper.dataset.shelfishProcessed = "true";
-            const i = wrapper._shelfishItem;
-            const img = wrapper.querySelector('img');
+    async fetchArtwork(item) {
+        const cacheKey = `sh4_${item.type}_${item.title}_${item.author}`.replace(/\s+/g, '_');
+        let url = localStorage.getItem(cacheKey);
+
+        if (!url) {
+            const isVid = ['Movie', 'TV'].includes(item.type);
+            const q = encodeURIComponent(item.title + (isVid ? '' : ' ' + item.author));
+            const endpoint = isVid 
+                ? `https://api.themoviedb.org/3/search/${item.type === 'Movie' ? 'movie' : 'tv'}?api_key=${this.key}&query=${q}`
+                : `https://itunes.apple.com/search?term=${q}&media=${item.type === 'Music' ? 'music' : 'ebook'}&limit=1`;
+
             try {
-                const url = i.img || await this.fetchAPI(i);
-                if (url) { localStorage.setItem(`shelfish_${i.type}_${i.title}_${i.author}`.replace(/\s+/g, '_'), url); img.src = url; }
-                else { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
-            } catch (e) { wrapper.querySelector('.shelfish-thumb').innerHTML = `<div class="shelfish-placeholder">${this.icons[i.type]}</div>`; }
-            await new Promise(r => setTimeout(r, 250));
+                const res = await fetch(endpoint).then(r => r.json());
+                const hit = res.results?.[0];
+                if (hit) {
+                    if (hit.poster_path) url = `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
+                    else if (hit.artworkUrl100) url = hit.artworkUrl100.replace('100x100bb.jpg', '1000x1000bb.jpg');
+                    if (url) localStorage.setItem(cacheKey, url);
+                }
+            } catch (e) { console.error('fetch error', e); }
         }
-        this.isProcessing = false;
-    }
 
-    async fetchAPI({ type, title, author }) {
-        const isVid = ['Movie', 'TV'].includes(type);
-        const q = encodeURIComponent(title + (isVid ? '' : ' ' + author));
-        const url = isVid ? `https://api.themoviedb.org/3/search/${type === 'Movie' ? 'movie' : 'tv'}?api_key=${this.key}&query=${q}` : `https://itunes.apple.com/search?term=${q}&media=${type === 'Music' ? 'music' : 'ebook'}&limit=1`;
-        try {
-            const res = await (await fetch(url)).json();
-            const hit = res.results && res.results.length > 0 ? res.results[0] : null;
-            if (hit && hit.poster_path) return `https://image.tmdb.org/t/p/w500${hit.poster_path}`;
-            if (hit && hit.artworkUrl100) return hit.artworkUrl100.replace('100x100bb.jpg', '1000x1000bb.jpg');
-        } catch (e) {} return null;
+        if (url) {
+            const el = document.querySelector(`.shelfish-v4-item[data-id="${item.id}"] img`);
+            if (el) {
+                el.src = url;
+                el.onload = () => el.classList.add('loaded');
+            }
+        }
     }
 }
-const initShelfish = () => { window.ShelfishInstance = new Shelfish(); };
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initShelfish); } else { initShelfish(); }
+
+// launch
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new Shelfish());
+} else {
+    new Shelfish();
+}
