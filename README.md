@@ -93,7 +93,7 @@ But the relatively simple format makes it easy to debug and fix.
 - It would also be nice to implement a **Steam** thumbnail fetcher, too. But I'm not much of gamer so I didn't bother with it.
 - I would like to make some improvements on the first paint of the shelves. But it works fine enough for my use case.
 - While I do know how to code, I'm quite rusty and used **Google Antigravity** generously. I would love for an indie dev to fork this and remix it without the use of AI. Despite my best attempts, it's a bit bloated.
-- **OCD Disclaimer**: This uses a native CSS column layout. This is the only way to get those perfectly tight masonry gaps without bloated code. The trade-off is that it flows **top-to-bottom** (like a newspaper) instead of left-to-right. It’s a tiny compromise for a significantly lighter codebase that won't lag your blog. Deal with it lol.
+- **OCD Disclaimer**: This uses a native CSS column layout to give it a masonry look. It flows top-to-bottom instead of left-to-right. There were other ways to do this, but it was turning the code bloated. If you find a better way, let me know, or better yet, fork it lol.
 
 ---
 
