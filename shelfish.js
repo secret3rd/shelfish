@@ -1,5 +1,5 @@
 /**
- * shelfish v6.6: persistent caching & typographic refinement.
+ * shelfish v6.7: permissive list triggering.
  */
 (function() {
     const TMDB_KEY = '8942f1dc81e199d343c97639c0bbca67';
@@ -26,7 +26,7 @@
             gap: 0.8rem; 
             height: 100%; 
             box-sizing: border-box; 
-            max-width: 15rem; /* updated to 15rem */
+            max-width: 15rem; 
         }
         .sh-thumb { 
             width: 100%; 
@@ -53,7 +53,7 @@
         .sh-img.loaded { opacity: 1; }
         .sh-info { display: flex; flex-direction: column; gap: 0.3rem; }
         .sh-title { 
-            font-size: 1.1rem; /* slightly larger */
+            font-size: 1.1rem; 
             font-weight: 600; 
             line-height: 1.25; 
         }
@@ -64,7 +64,7 @@
         }
         .sh-btn { 
             font-size: 0.9rem; 
-            font-weight: 600; /* match title strength */
+            font-weight: 600; 
             text-decoration: none; 
             color: inherit; 
             margin-top: auto; 
@@ -72,8 +72,8 @@
             border-top: 1px solid color-mix(in srgb, currentColor, transparent 90%); 
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* start instead of between */
-            gap: 0.4rem; /* closely appended */
+            justify-content: flex-start; 
+            gap: 0.4rem; 
         }
         .sh-btn .sh-arr { 
             transition: transform 0.2s ease; 
@@ -104,8 +104,7 @@
         const query = encodeURIComponent(cleanTitle + ' ' + author);
         let url;
         if (type.match(/movie|tv/)) {
-            const qTitle = encodeURIComponent(cleanTitle);
-            url = `https://api.themoviedb.org/3/search/${type === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_KEY}&query=${qTitle}`;
+            url = `https://api.themoviedb.org/3/search/${type === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_KEY}&query=${encodeURIComponent(cleanTitle)}`;
         } else {
             const entity = type === 'music' ? 'album' : 'ebook';
             const media = type === 'music' ? 'music' : 'ebook';
@@ -136,7 +135,10 @@
 
         document.querySelectorAll('ul:not([data-shelfish])').forEach(ul => {
             const first = ul.querySelector('li');
-            if (!first || !first.innerText.toLowerCase().includes('shelf')) return;
+            if (!first) return;
+            const txt = first.innerText.toLowerCase();
+            // trigger on shelf, shelfish, [shelf], etc
+            if (!txt.includes('shelf')) return;
 
             ul.dataset.shelfish = "true";
             const grid = document.createElement('div');
