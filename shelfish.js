@@ -1,5 +1,5 @@
 /**
- * shelfish v6.5: strict api targeting & flexible grid logic.
+ * shelfish v6.6: persistent caching & typographic refinement.
  */
 (function() {
     const TMDB_KEY = '8942f1dc81e199d343c97639c0bbca67';
@@ -9,7 +9,7 @@
     const styles = `
         .sh-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
             gap: 1.5rem; 
             margin: 2.5rem 0; 
             width: 100%; 
@@ -23,10 +23,10 @@
             padding: 1rem; 
             display: flex; 
             flex-direction: column; 
-            gap: 0.6rem; 
+            gap: 0.8rem; 
             height: 100%; 
             box-sizing: border-box; 
-            max-width: 220px; /* lock the card width here, not the grid */
+            max-width: 15rem; /* updated to 15rem */
         }
         .sh-thumb { 
             width: 100%; 
@@ -50,27 +50,30 @@
             border-radius: 0 !important; 
             margin: 0 !important; 
         }
+        .sh-img.loaded { opacity: 1; }
+        .sh-info { display: flex; flex-direction: column; gap: 0.3rem; }
         .sh-title { 
-            font-size: 0.95rem; 
+            font-size: 1.1rem; /* slightly larger */
             font-weight: 600; 
-            line-height: 1.2; 
+            line-height: 1.25; 
         }
         .sh-author { 
-            font-size: 0.8rem; 
+            font-size: 0.85rem; 
             opacity: 0.6; 
             margin: 0; 
         }
         .sh-btn { 
-            font-size: 0.85rem; 
-            font-weight: 700; 
+            font-size: 0.9rem; 
+            font-weight: 600; /* match title strength */
             text-decoration: none; 
             color: inherit; 
             margin-top: auto; 
-            padding-top: 0.6rem; 
+            padding-top: 0.8rem; 
             border-top: 1px solid color-mix(in srgb, currentColor, transparent 90%); 
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start; /* start instead of between */
+            gap: 0.4rem; /* closely appended */
         }
         .sh-btn .sh-arr { 
             transition: transform 0.2s ease; 
@@ -84,17 +87,26 @@
         }
     `;
 
+    const getCache = (k) => localStorage.getItem('sh_v6_' + k);
+    const setCache = (k, v) => localStorage.setItem('sh_v6_' + k, v);
+
     const fetchArt = async (type, title, author, img) => {
         const cleanTitle = title.replace(/\[.*?\]/g, '').trim();
-        const query = encodeURIComponent(cleanTitle + ' ' + author);
+        const cacheKey = `${type}_${cleanTitle}_${author}`.replace(/\s+/g, '_').toLowerCase();
         
+        let cached = getCache(cacheKey);
+        if (cached) {
+            img.src = cached;
+            img.onload = () => img.classList.add('loaded');
+            return;
+        }
+
+        const query = encodeURIComponent(cleanTitle + ' ' + author);
         let url;
         if (type.match(/movie|tv/)) {
-            // movies/tv only search by title on tmdb for reliability
             const qTitle = encodeURIComponent(cleanTitle);
             url = `https://api.themoviedb.org/3/search/${type === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_KEY}&query=${qTitle}`;
         } else {
-            // specify entity and media for itunes calls
             const entity = type === 'music' ? 'album' : 'ebook';
             const media = type === 'music' ? 'music' : 'ebook';
             url = `https://itunes.apple.com/search?term=${query}&limit=1&media=${media}&entity=${entity}`;
@@ -106,8 +118,9 @@
             if (result) {
                 const src = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : result.artworkUrl100?.replace('100x100', '1000x1000');
                 if (src) {
+                    setCache(cacheKey, src);
                     img.src = src;
-                    img.onload = () => img.style.opacity = 1;
+                    img.onload = () => img.classList.add('loaded');
                 }
             }
         } catch (e) {}
@@ -144,8 +157,10 @@
                         <span style="opacity:0.2; font-size:2rem">${icons[type.charAt(0).toUpperCase() + type.slice(1)] || '📖'}</span>
                         <img class="sh-img">
                     </div>
-                    <b class="sh-title">${displayTitle}</b>
-                    <p class="sh-author">${author}</p>
+                    <div class="sh-info">
+                        <b class="sh-title">${displayTitle}</b>
+                        <p class="sh-author">${author}</p>
+                    </div>
                     ${(link && link !== '#') ? `<a href="${link}" class="sh-btn">${(label && label !== '#') ? label : 'Review'} <span class="sh-arr">→</span></a>` : ''}
                 `;
                 
