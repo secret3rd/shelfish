@@ -1,12 +1,12 @@
 /**
  * shelfish v4-scratch: lean, grid-based media shelves.
- * circular priority fetching & native glassmorphism.
+ * robust trigger & circular priority fetching.
  */
 class Shelfish {
     constructor() {
-        this.key = '8942f1dc81e199d343c97639c0bbca67'; // tmdb key
+        this.key = '8942f1dc81e199d343c97639c0bbca67';
         this.icons = { 'Book': '📚', 'Movie': '🎬', 'TV': '📺', 'Music': '🎵' };
-        this.items = []; // flat list of all items across all shelves
+        this.items = [];
         this.processedIds = new Set();
         this.isFetching = false;
         
@@ -15,23 +15,29 @@ class Shelfish {
 
     init() {
         this.scan();
-        // watch for dynamic content additions
         new MutationObserver(() => this.scan()).observe(document.body, { childList: true, subtree: true });
     }
 
     scan() {
         document.querySelectorAll('ul:not([data-shelfish-loaded])').forEach(ul => {
-            const first = ul.querySelector('li');
-            if (first && (first.innerHTML.includes('📚') || first.innerText.includes('📚'))) {
-                this.transform(ul);
+            // check for any LI containing the book emoji
+            const items = Array.from(ul.querySelectorAll('li'));
+            const triggerIdx = items.findIndex(li => li.innerText.includes('📚') || li.innerHTML.includes('📚'));
+            
+            if (triggerIdx !== -1) {
+                this.transform(ul, items, triggerIdx);
             }
         });
     }
 
-    transform(ul) {
+    transform(ul, items, triggerIdx) {
         ul.dataset.shelfishLoaded = "true";
-        const rawItems = Array.from(ul.querySelectorAll('li')).slice(1); // skip trigger icon
-        const shelfItems = rawItems.map(li => this.parse(li.innerText || li.textContent)).filter(Boolean);
+        
+        // collect items after the trigger emoji
+        const shelfItems = items.slice(triggerIdx + 1)
+            .map(li => this.parse(li.innerText || li.textContent))
+            .filter(Boolean);
+            
         if (!shelfItems.length) return;
 
         const container = document.createElement('div');
@@ -41,14 +47,16 @@ class Shelfish {
         grid.className = 'shelfish-v4-grid';
         
         shelfItems.forEach(item => {
-            this.items.push(item);
+            if (!this.items.some(it => it.id === item.id)) {
+                this.items.push(item);
+            }
             grid.innerHTML += this.render(item);
         });
 
         container.appendChild(grid);
         ul.replaceWith(container);
 
-        // observe items for circular priority fetching
+        // monitor visibility for priority fetching
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !this.isFetching) {
@@ -72,7 +80,7 @@ class Shelfish {
         
         return {
             id: 'sh-' + Math.random().toString(36).substr(2, 9),
-            type: typeStr,
+            type: typeStr || 'Book',
             title: p[0].replace(tagMatch[0], '').trim(),
             author: p[1],
             link: (p[2] && p[2] !== '#') ? p[2] : null,
@@ -105,18 +113,13 @@ class Shelfish {
         const startIndex = this.items.findIndex(it => it.id === startId);
         if (startIndex === -1) { this.isFetching = false; return; }
 
-        // create circular sequence: started -> end, then beginning -> started
-        const sequence = [
-            ...this.items.slice(startIndex),
-            ...this.items.slice(0, startIndex)
-        ];
+        const sequence = [...this.items.slice(startIndex), ...this.items.slice(0, startIndex)];
 
         for (const item of sequence) {
             if (this.processedIds.has(item.id)) continue;
             await this.fetchArtwork(item);
             this.processedIds.add(item.id);
-            // tiny breather for api limits
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 150));
         }
 
         this.isFetching = false;
@@ -141,7 +144,7 @@ class Shelfish {
                     else if (hit.artworkUrl100) url = hit.artworkUrl100.replace('100x100bb.jpg', '1000x1000bb.jpg');
                     if (url) localStorage.setItem(cacheKey, url);
                 }
-            } catch (e) { console.error('fetch error', e); }
+            } catch (e) {}
         }
 
         if (url) {
@@ -154,9 +157,5 @@ class Shelfish {
     }
 }
 
-// launch
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new Shelfish());
-} else {
-    new Shelfish();
-}
+const initSH4 = () => { window.ShelfishV4 = new Shelfish(); };
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initSH4); } else { initSH4(); }
