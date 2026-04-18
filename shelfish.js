@@ -1,6 +1,5 @@
 /**
- * shelfish v6.4: clinical minimalism.
- * all-in-one script with precise fetching and subtle animations.
+ * shelfish v6.5: strict api targeting & flexible grid logic.
  */
 (function() {
     const TMDB_KEY = '8942f1dc81e199d343c97639c0bbca67';
@@ -10,7 +9,7 @@
     const styles = `
         .sh-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 200px)); 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
             gap: 1.5rem; 
             margin: 2.5rem 0; 
             width: 100%; 
@@ -27,6 +26,7 @@
             gap: 0.6rem; 
             height: 100%; 
             box-sizing: border-box; 
+            max-width: 220px; /* lock the card width here, not the grid */
         }
         .sh-thumb { 
             width: 100%; 
@@ -54,7 +54,6 @@
             font-size: 0.95rem; 
             font-weight: 600; 
             line-height: 1.2; 
-            display: block; 
         }
         .sh-author { 
             font-size: 0.8rem; 
@@ -81,28 +80,31 @@
         }
         @media (max-width: 480px) { 
             .sh-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; } 
-            .sh-card { padding: 0.7rem; } 
+            .sh-card { padding: 0.7rem; max-width: none; } 
         }
     `;
 
     const fetchArt = async (type, title, author, img) => {
-        // clean up title for better search
         const cleanTitle = title.replace(/\[.*?\]/g, '').trim();
-        const query = encodeURIComponent(cleanTitle + (type.match(/movie|tv/) ? '' : ' ' + author));
+        const query = encodeURIComponent(cleanTitle + ' ' + author);
         
         let url;
         if (type.match(/movie|tv/)) {
-            url = `https://api.themoviedb.org/3/search/${type === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_KEY}&query=${query}`;
+            // movies/tv only search by title on tmdb for reliability
+            const qTitle = encodeURIComponent(cleanTitle);
+            url = `https://api.themoviedb.org/3/search/${type === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_KEY}&query=${qTitle}`;
         } else {
-            // using allorigins only if needed for itunes cors
-            url = `https://itunes.apple.com/search?term=${query}&limit=1&entity=${type === 'music' ? 'album' : 'ebook'}`;
+            // specify entity and media for itunes calls
+            const entity = type === 'music' ? 'album' : 'ebook';
+            const media = type === 'music' ? 'music' : 'ebook';
+            url = `https://itunes.apple.com/search?term=${query}&limit=1&media=${media}&entity=${entity}`;
         }
 
         try {
             const res = await fetch(url).then(r => r.json());
             const result = res.results?.[0];
             if (result) {
-                const src = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : result.artworkUrl100?.replace('100x100', '800x800');
+                const src = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : result.artworkUrl100?.replace('100x100', '1000x1000');
                 if (src) {
                     img.src = src;
                     img.onload = () => img.style.opacity = 1;
@@ -112,7 +114,6 @@
     };
 
     const transform = () => {
-        // inject styles once
         if (!document.getElementById('shelfish-css')) {
             const styleNode = document.createElement('style');
             styleNode.id = 'shelfish-css';
@@ -143,7 +144,7 @@
                         <span style="opacity:0.2; font-size:2rem">${icons[type.charAt(0).toUpperCase() + type.slice(1)] || '📖'}</span>
                         <img class="sh-img">
                     </div>
-                    <b>${displayTitle}</b>
+                    <b class="sh-title">${displayTitle}</b>
                     <p class="sh-author">${author}</p>
                     ${(link && link !== '#') ? `<a href="${link}" class="sh-btn">${(label && label !== '#') ? label : 'Review'} <span class="sh-arr">→</span></a>` : ''}
                 `;
