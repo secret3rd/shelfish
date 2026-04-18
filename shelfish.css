@@ -11,7 +11,7 @@
 
 /* ensure cards never break across columns */
 .shelfish-item-wrapper { 
-    break-inside: avoid !important;
+    break-inside: avoid-column !important;
     display: block !important;
     width: 100% !important;
     margin-bottom: 1.2rem !important; /* vertical gap (your 2 red bars) */
